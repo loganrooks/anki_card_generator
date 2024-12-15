@@ -1,4 +1,6 @@
-import openai
+from openai import OpenAI
+
+client = OpenAI(api_key=api_key)
 import ebooklib
 from ebooklib import epub
 from bs4 import BeautifulSoup
@@ -26,17 +28,15 @@ def split_text(text, regex=None):
         return ['\n'.join(paragraphs[i:i+8]) for i in range(0, len(paragraphs), 8)]
 
 # Function to create cloze deletion anki cards using OpenAI API
-def create_anki_cards(text_chunk, prompt_instructions):
-    openai.api_key = 'YOUR_OPENAI_API_KEY'
-    response = openai.Completion.create(
-        engine="gpt-4o-mini",
-        prompt=f"{prompt_instructions}\n\n{text_chunk}\n\nFormat the cards as JSON with 'Text' and 'Citation' fields.",
-        max_tokens=1500,
-        n=1,
-        stop=None,
-        temperature=0.7,
-    )
-    return response.choices[0].text.strip()
+def create_anki_cards(text_chunk, prompt_instructions, api_key):
+    response = client.chat.completions.create(model="gpt-3.5-turbo",
+    messages=[
+        {"role": "system", "content": "You are a professional making Anki flash cards from the given text for educational purposes for schools, universities, professional trainings."},
+        {"role": "user", "content": f"{prompt_instructions}\n\n{text_chunk}\n\nFormat the cards as JSON with 'Text' and 'Citation' fields."}
+    ],
+    max_tokens=1500,
+    temperature=0.7)
+    return response.choices[0].message.content.strip()
 
 # Function to format the output as JSON
 def format_as_json(output):
@@ -55,7 +55,10 @@ def main():
     parser.add_argument('--prompt_text', type=str, help='Prompt instructions as a string', default=None)
     parser.add_argument('--out', type=str, required=True, help='Output JSON file path')
     parser.add_argument('--test', action='store_true', help='Generate Anki cards for the first three chunks only and append "_test" to the output filename')
+    parser.add_argument('--api_key', type=str, help='OpenAI API Key', default=None)
     args = parser.parse_args()
+
+    API_KEY = args.api_key
 
     # Extract text from epub file
     text = extract_text_from_epub(args.epub_file)
@@ -90,7 +93,7 @@ def main():
     output_json_path = args.out
     if args.test:
         output_json_path = os.path.splitext(output_json_path)[0] + "_test.json"
-    
+
     error_log_path = os.path.splitext(output_json_path)[0] + "_errors.txt"
 
     all_anki_cards = []
@@ -103,7 +106,7 @@ def main():
 
     # Create anki cards for each chunk and handle errors
     for chunk in text_chunks:
-        anki_cards_output = create_anki_cards(chunk, prompt_instructions)
+        anki_cards_output = create_anki_cards(chunk, prompt_instructions, API_KEY)
         anki_cards_json, error = format_as_json(anki_cards_output)
 
         if anki_cards_json:
