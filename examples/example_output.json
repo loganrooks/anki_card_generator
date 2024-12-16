@@ -1,0 +1,315 @@
+[
+    {
+        "args": {
+            "epub_file": "/mnt/c/Users/logan/Downloads/output/Being and Time - Martin Heidegger.epub",
+            "regex": "H\\.\\s\\d{1,3}",
+            "prompt_file": null,
+            "prompt_text": null,
+            "out": "/mnt/c/Users/logan/Downloads/output/sz.json",
+            "test": true,
+            "use_example": true,
+            "pages_per_chunk": 2,
+            "page_range": [
+                1,
+                6
+            ],
+            "temperature": [
+                0.7
+            ],
+            "max_completion_tokens": [
+                3000
+            ],
+            "top_p": [
+                0.5
+            ],
+            "overwrite": false
+        },
+        "kwargs": {
+            "temperature": [
+                0.7
+            ],
+            "max_completion_tokens": [
+                3000
+            ],
+            "top_p": [
+                0.5
+            ]
+        },
+        "output": [
+            {
+                "Text": "WHAT have we gained by our preparatory analysis of {{c1::Dasein}}, and what are we seeking? In {{c2::Being-in-the-world}}, whose essential structures centre in {{c1::disclosedness}}, we have found the basic state of the entity we have taken as our theme. The totality of {{c2::Being-in-the-world}} as a structural whole has revealed itself as {{c1::care}}. In {{c1::care}} the Being of {{c2::Dasein}} is included. When we came to analyse this {{c1::Being}}, we took as our clue {{c2::existence(i)}}, which, in anticipation, we had designated as the essence of {{c1::Dasein}}. This term \u201c{{c2::existence}}\u201d formally indicates that {{c1::Dasein}} is as an understanding {{c2::potentiality-for-Being}}, which, in its {{c1::Being}}, makes an issue of that {{c2::Being}} itself. In every case, I myself am the entity which is in such a manner {{c1::[dergestalt seiend]}}. By working out the phenomenon of {{c2::care}}, we have given ourselves an insight into the concrete constitution of {{c1::existence}}\u2014that is, an insight into its equiprimordial connection with {{c2::Dasein}}\u2019s facticity and its falling.",
+                "Citation": "Being and Time, H. 231"
+            },
+            {
+                "Text": "What we are seeking is the answer to the question about the meaning of {{c1::Being}} in general, and, prior to that, the possibility of working out in a radical manner this basic question of all {{c2::ontology}}. But to lay bare the horizon within which something like {{c1::Being}} in general becomes intelligible, is tantamount to clarifying the possibility of having any understanding of {{c2::Being}} at all\u2014an understanding which itself belongs to the constitution of the entity called {{c1::Dasein}}.(ii) The understanding of {{c2::Being}}, however, cannot be radically clarified as an essential element in {{c1::Dasein}}\u2019s {{c2::Being}}, unless the entity to whose {{c1::Being}} it belongs, has been Interpreted primordially in itself with regard to its {{c2::Being}}.",
+                "Citation": "Being and Time, H. 231"
+            },
+            {
+                "Text": "Are we entitled to the claim that in characterizing {{c1::Dasein}} ontologically qua {{c2::care}} we have given a primordial Interpretation of this entity? By what criterion is the existential analytic of {{c1::Dasein}} to be assessed as regards its primordiality, or the lack of it? What, indeed, do we mean by the \u201c{{c2::primordiality}}\u201d of an ontological Interpretation? Ontological investigation is a possible kind of interpreting, which we have described as the working-out and appropriation of an understanding.(iii) Every interpretation has its {{c1::fore-having}}, its {{c2::fore-sight}}, and its {{c1::fore-conception}}.",
+                "Citation": "Being and Time, H. 232"
+            },
+            {
+                "Text": "If such an interpretation, as Interpretation, becomes an explicit task for research, then the totality of these \u2018{{c1::presuppositions}}\u2019 (which we call the \u201c{{c2::hermeneutical Situation}}\u201d) needs to be clarified and made secure beforehand, both in a basic experience of the \u2018{{c1::object}}\u2019 to be disclosed, and in terms of such an experience. In ontological Interpretation an entity is to be laid bare with regard to its own state of {{c2::Being}}; such an Interpretation obliges us first to give a phenomenal characterization of the entity we have taken as our theme, and thus to bring it into the scope of our {{c1::fore-having}}, with which all the subsequent steps of our analysis are to conform.",
+                "Citation": "Being and Time, H. 232"
+            },
+            {
+                "Text": "But at the same time these steps need to be guided by whatever {{c1::fore-sight}} is possible as to the kind of {{c2::Being}} which the entity may possess. Our {{c1::fore-having}} and our {{c2::fore-sight}} will then give us at the same time a sketch of that way of conceiving (or {{c1::fore-conception}}) to the level of which all structures of {{c2::Being}} are to be raised. If, however, the ontological Interpretation is to be a primordial one, this not only demands that in general the {{c1::hermeneutical Situation}} shall be one which has been made secure in conformity with the phenomena; it also requires explicit assurance that the whole of the entity which it has taken as its theme has been brought into the {{c2::fore-having}}.",
+                "Citation": "Being and Time, H. 232"
+            },
+            {
+                "Text": "Similarly, it is not enough just to make a first sketch of the {{c1::Being}} of this entity, even if our sketch is grounded in the phenomena. If we are to have a {{c2::fore-sight}} of {{c1::Being}}, we must see it in such a way as not to miss the unity of those structural items which belong to it and are possible. Only then can the question of the meaning of the unity which belongs to the whole entity\u2019s totality of {{c2::Being}}, be formulated and answered with any phenomenal assurance. Has the existential analysis of {{c1::Dasein}} which we have carried out, arisen from such a {{c2::hermeneutical Situation}} as will guarantee the primordiality which fundamental {{c1::ontology}} demands?",
+                "Citation": "Being and Time, H. 232"
+            },
+            {
+                "Text": "Can we progress from the result we have obtained\u2014that the being of {{c1::Dasein}} is {{c2::care}}\u2014to the question of the primordial unity of this structural whole?",
+                "Citation": "Being and Time, H. 232"
+            },
+            {
+                "Text": "What is the status of the {{c1::fore-sight}} by which our {{c2::ontological procedure}} has hitherto been guided? We have defined the idea of {{c1::existence}} as a {{c2::potentiality-for-Being}}\u2014a potentiality which understands, and for which its own {{c1::Being}} is an issue. But this potentiality-for-Being, as one which is in each case {{c2::mine}}, is free either for {{c1::authenticity}} or for {{c1::inauthenticity}} or for a mode in which neither of these has been differentiated. In starting with average {{c2::everydayness}}, our Interpretation has heretofore been confined to the analysis of such existing as is either {{c1::undifferentiated}} or inauthentic. Of course even along this path, it was possible and indeed necessary to reach a concrete determination of the {{c2::existentiality}} of existence. Nevertheless, our ontological characterization of the constitution of existence still lacked something essential.",
+                "Citation": "Being and Time, H. 233"
+            },
+            {
+                "Text": "\u201cExistence\u201d means a {{c1::potentiality-for-Being}}\u2014but also one which is {{c2::authentic}}. As long as the existential structure of an authentic potentiality-for-Being has not been brought into the idea of existence, the {{c1::fore-sight}} by which an existential Interpretation is guided will lack {{c2::primordiality}}. And how about what we have had in advance in our {{c1::hermeneutical Situation}} hitherto? How about its {{c2::fore-having}}? When and how has our existential analysis received any assurance that by starting with everydayness, it has forced the whole of {{c1::Dasein}}\u2014this entity from its \u2018beginning\u2019 to its \u2018end\u2019\u2014into the phenomenological view which gives us our theme? We have indeed contended that {{c2::care}} is the totality of the structural whole of Dasein\u2019s constitution.",
+                "Citation": "Being and Time, H. 233"
+            },
+            {
+                "Text": "But have we not at the very outset of our Interpretation renounced the possibility of bringing Dasein into view as a whole? Everydayness is precisely that Being which is \u2018between\u2019 {{c1::birth}} and {{c2::death}}. And if existence is definitive for Dasein\u2019s Being and if its essence is constituted in part by potentiality-for-Being, then, as long as Dasein exists, it must in each case, as such a potentiality, not yet be something. Any entity whose Essence is made up of existence, is essentially opposed to the possibility of our getting it in our grasp as an entity which is a whole. Not only has the hermeneutical Situation hitherto given us no assurance of \u2018having\u2019 the whole entity: one may even question whether \u201chaving\u201d the whole entity is attainable at all, and whether a primordial ontological Interpretation of Dasein will not founder on the kind of Being which belongs to the very entity we have taken as our theme.",
+                "Citation": "Being and Time, H. 233"
+            },
+            {
+                "Text": "One thing has become unmistakable: our existential analysis of Dasein up till now cannot lay claim to {{c1::primordiality}}. Its {{c2::fore-having}} never included more than the inauthentic Being of Dasein, and of Dasein as less than a whole [{{c1::als unganzes}}]. If the Interpretation of Dasein\u2019s Being is to become primordial, as a foundation for working out the basic question of ontology, then it must first have brought to light existentially the Being of Dasein in its possibilities of {{c2::authenticity}} and {{c1::totality}}.",
+                "Citation": "Being and Time, H. 233"
+            },
+            {
+                "Text": "Thus arises the task of putting Dasein as a whole into our {{c1::fore-having}}. This signifies, however, that we must first of all raise the question of this entity\u2019s {{c2::potentiality-for-Being-a-whole}}. As long as Dasein is, there is in every case something still outstanding, which Dasein can be and will be. But to that which is thus outstanding, the \u2018{{c1::end}}\u2019 itself belongs. The \u2018end\u2019 of Being-in-the-world is {{c2::death}}. This end, which belongs to the potentiality-for-Being\u2014that is to say, to existence\u2014limits and determines in every case whatever totality is possible for Dasein.",
+                "Citation": "Being and Time, H. 234"
+            },
+            {
+                "Text": "If, however, Dasein\u2019s {{c1::Being-at-an-end}} in death, and therewith its Being-a-whole, are to be included in the discussion of its possibly Being-a-whole, and if this is to be done in a way which is appropriate to the phenomena, then we must have obtained an ontologically adequate conception of {{c2::death}}\u2014that is to say an existential conception of it. But as something of the character of Dasein, death is only in an {{c1::existentiell Being}} towards death [{{c2::Sein zum Tode}}]. The existential structure of such Being proves to be the ontologically constitutive state of Dasein\u2019s potentiality-for-Being-a-whole.",
+                "Citation": "Being and Time, H. 234"
+            },
+            {
+                "Text": "Thus the whole existing Dasein allows itself to be brought into our existential {{c1::fore-having}}. But can Dasein also exist authentically as a whole? How is the {{c2::authenticity}} of existence to be determined at all, if not with regard to authentic existing? Where do we get our {{c1::criterion}} for this? Manifestly, Dasein itself must, in its Being, present us with the possibility and the manner of its authentic existence, unless such existence is something that can be imposed upon it ontically, or ontologically fabricated.",
+                "Citation": "Being and Time, H. 234"
+            },
+            {
+                "Text": "But an authentic potentiality-for-Being is attested by the {{c1::conscience}}. And conscience, as a phenomenon of Dasein, demands, like death, a genuinely existential {{c2::Interpretation}}. Such an Interpretation leads to the insight that Dasein has an authentic potentiality-for-Being in that it wants to have a conscience. But this is an existentiell possibility which tends, from the very meaning of its Being, to be made definite in an existentiell way by {{c1::Being-towards-death}}.",
+                "Citation": "Being and Time, H. 234"
+            },
+            {
+                "Text": "By pointing out that Dasein has an authentic potentiality-for-Being-a-whole, the existential analytic acquires assurance as to the constitution of Dasein\u2019s {{c1::primordial Being}}. But at the same time the authentic potentiality-for-Being-a-whole becomes visible as a mode of {{c2::care}}. And therewith the phenomenally adequate ground for a primordial Interpretation of the meaning of Dasein\u2019s Being has also been assured. But the primordial ontological basis for Dasein\u2019s existentiality is {{c1::temporality}}.",
+                "Citation": "Being and Time, H. 234"
+            },
+            {
+                "Text": "In terms of temporality, the articulated structural totality of Dasein\u2019s Being as care first becomes existentially intelligible. The Interpretation of the meaning of Dasein\u2019s Being cannot stop with this demonstration. The existential-temporal analysis of this entity needs to be confirmed {{c1::concretely}}. We must go back and lay bare in their temporal meaning the ontological structures of Dasein which we have previously obtained. Everydayness reveals itself as a mode of {{c2::temporality}}.",
+                "Citation": "Being and Time, H. 234"
+            },
+            {
+                "Text": "But by thus recapitulating our preparatory fundamental analysis of Dasein, we will at the same time make the phenomenon of {{c1::temporality}} itself more transparent. In terms of temporality, it then becomes intelligible why Dasein is, and can be, {{c2::historical}} in the basis of its Being, and why, as historical, it can develop {{c1::historiology}}.",
+                "Citation": "Being and Time, H. 234"
+            }
+        ]
+    },
+    {
+        "args": {
+            "epub_file": "/mnt/c/Users/logan/Downloads/output/Being and Time - Martin Heidegger.epub",
+            "regex": "H\\.\\s\\d{1,3}",
+            "prompt_file": null,
+            "prompt_text": null,
+            "out": "/mnt/c/Users/logan/Downloads/output/sz.json",
+            "test": true,
+            "use_example": true,
+            "pages_per_chunk": 2,
+            "page_range": [
+                1,
+                6
+            ],
+            "temperature": [
+                0.7
+            ],
+            "max_completion_tokens": [
+                3000
+            ],
+            "top_p": [
+                0.5
+            ],
+            "overwrite": false
+        },
+        "kwargs": {},
+        "output": [
+            {
+                "Text": "WHAT have we gained by our preparatory analysis of {{c1::Dasein}}, and what are we seeking? In {{c2::Being-in-the-world}}, whose essential structures centre in {{c1::disclosedness}}, we have found the basic state of the entity we have taken as our theme. The totality of {{c2::Being-in-the-world}} as a structural whole has revealed itself as {{c1::care}}. In {{c1::care}} the Being of {{c2::Dasein}} is included. When we came to analyse this {{c1::Being}}, we took as our clue {{c2::existence(i)}}, which, in anticipation, we had designated as the essence of {{c1::Dasein}}. This term \u201c{{c2::existence}}\u201d formally indicates that {{c1::Dasein}} is as an understanding {{c2::potentiality-for-Being}}, which, in its {{c1::Being}}, makes an issue of that {{c2::Being}} itself. In every case, I myself am the entity which is in such a manner {{c1::[dergestalt seiend]}}. By working out the phenomenon of {{c2::care}}, we have given ourselves an insight into the concrete constitution of {{c1::existence}}\u2014that is, an insight into its equiprimordial connection with {{c2::Dasein}}\u2019s facticity and its falling.",
+                "Citation": "Being and Time, H. 231"
+            },
+            {
+                "Text": "What we are seeking is the answer to the question about the meaning of {{c1::Being}} in general, and, prior to that, the possibility of working out in a radical manner this basic question of all {{c2::ontology}}. But to lay bare the horizon within which something like {{c1::Being}} in general becomes intelligible, is tantamount to clarifying the possibility of having any understanding of {{c2::Being}} at all\u2014an understanding which itself belongs to the constitution of the entity called {{c1::Dasein}}.(ii) The understanding of {{c2::Being}}, however, cannot be radically clarified as an essential element in {{c1::Dasein}}\u2019s {{c2::Being}}, unless the entity to whose {{c1::Being}} it belongs, has been Interpreted primordially in itself with regard to its {{c2::Being}}.",
+                "Citation": "Being and Time, H. 231"
+            },
+            {
+                "Text": "Are we entitled to the claim that in characterizing {{c1::Dasein}} ontologically qua {{c2::care}} we have given a primordial Interpretation of this entity? By what criterion is the existential analytic of {{c1::Dasein}} to be assessed as regards its primordiality, or the lack of it? What, indeed, do we mean by the \u201c{{c2::primordiality}}\u201d of an ontological Interpretation? Ontological investigation is a possible kind of interpreting, which we have described as the working-out and appropriation of an understanding.(iii) Every interpretation has its {{c1::fore-having}}, its {{c2::fore-sight}}, and its {{c1::fore-conception}}.",
+                "Citation": "Being and Time, H. 232"
+            },
+            {
+                "Text": "If such an interpretation, as Interpretation, becomes an explicit task for research, then the totality of these \u2018{{c1::presuppositions}}\u2019 (which we call the \u201c{{c2::hermeneutical Situation}}\u201d) needs to be clarified and made secure beforehand, both in a basic experience of the \u2018{{c1::object}}\u2019 to be disclosed, and in terms of such an experience. In ontological Interpretation an entity is to be laid bare with regard to its own state of {{c2::Being}}; such an Interpretation obliges us first to give a phenomenal characterization of the entity we have taken as our theme, and thus to bring it into the scope of our {{c1::fore-having}}, with which all the subsequent steps of our analysis are to conform.",
+                "Citation": "Being and Time, H. 232"
+            },
+            {
+                "Text": "But at the same time these steps need to be guided by whatever {{c1::fore-sight}} is possible as to the kind of {{c2::Being}} which the entity may possess. Our {{c1::fore-having}} and our {{c2::fore-sight}} will then give us at the same time a sketch of that way of conceiving (or {{c1::fore-conception}}) to the level of which all structures of {{c2::Being}} are to be raised. If, however, the ontological Interpretation is to be a primordial one, this not only demands that in general the {{c1::hermeneutical Situation}} shall be one which has been made secure in conformity with the phenomena; it also requires explicit assurance that the whole of the entity which it has taken as its theme has been brought into the {{c2::fore-having}}.",
+                "Citation": "Being and Time, H. 232"
+            },
+            {
+                "Text": "Similarly, it is not enough just to make a first sketch of the {{c1::Being}} of this entity, even if our sketch is grounded in the phenomena. If we are to have a {{c2::fore-sight}} of {{c1::Being}}, we must see it in such a way as not to miss the unity of those structural items which belong to it and are possible. Only then can the question of the meaning of the unity which belongs to the whole entity\u2019s totality of {{c2::Being}}, be formulated and answered with any phenomenal assurance. Has the existential analysis of {{c1::Dasein}} which we have carried out, arisen from such a {{c2::hermeneutical Situation}} as will guarantee the primordiality which fundamental {{c1::ontology}} demands?",
+                "Citation": "Being and Time, H. 232"
+            },
+            {
+                "Text": "Can we progress from the result we have obtained\u2014that the being of {{c1::Dasein}} is {{c2::care}}\u2014to the question of the primordial unity of this structural whole?",
+                "Citation": "Being and Time, H. 232"
+            },
+            {
+                "Text": "What is the status of the {{c1::fore-sight}} by which our {{c2::ontological procedure}} has hitherto been guided? We have defined the idea of {{c1::existence}} as a {{c2::potentiality-for-Being}}\u2014a potentiality which understands, and for which its own {{c1::Being}} is an issue. But this potentiality-for-Being, as one which is in each case {{c2::mine}}, is free either for {{c1::authenticity}} or for {{c1::inauthenticity}} or for a mode in which neither of these has been differentiated. In starting with average {{c2::everydayness}}, our Interpretation has heretofore been confined to the analysis of such existing as is either {{c1::undifferentiated}} or inauthentic. Of course even along this path, it was possible and indeed necessary to reach a concrete determination of the {{c2::existentiality}} of existence. Nevertheless, our ontological characterization of the constitution of existence still lacked something essential.",
+                "Citation": "Being and Time, H. 233"
+            },
+            {
+                "Text": "\u201cExistence\u201d means a {{c1::potentiality-for-Being}}\u2014but also one which is {{c2::authentic}}. As long as the existential structure of an authentic potentiality-for-Being has not been brought into the idea of existence, the {{c1::fore-sight}} by which an existential Interpretation is guided will lack {{c2::primordiality}}. And how about what we have had in advance in our {{c1::hermeneutical Situation}} hitherto? How about its {{c2::fore-having}}? When and how has our existential analysis received any assurance that by starting with everydayness, it has forced the whole of {{c1::Dasein}}\u2014this entity from its \u2018beginning\u2019 to its \u2018end\u2019\u2014into the phenomenological view which gives us our theme? We have indeed contended that {{c2::care}} is the totality of the structural whole of Dasein\u2019s constitution.",
+                "Citation": "Being and Time, H. 233"
+            },
+            {
+                "Text": "But have we not at the very outset of our Interpretation renounced the possibility of bringing Dasein into view as a whole? Everydayness is precisely that Being which is \u2018between\u2019 {{c1::birth}} and {{c2::death}}. And if existence is definitive for Dasein\u2019s Being and if its essence is constituted in part by potentiality-for-Being, then, as long as Dasein exists, it must in each case, as such a potentiality, not yet be something. Any entity whose Essence is made up of existence, is essentially opposed to the possibility of our getting it in our grasp as an entity which is a whole. Not only has the hermeneutical Situation hitherto given us no assurance of \u2018having\u2019 the whole entity: one may even question whether \u201chaving\u201d the whole entity is attainable at all, and whether a primordial ontological Interpretation of Dasein will not founder on the kind of Being which belongs to the very entity we have taken as our theme.",
+                "Citation": "Being and Time, H. 233"
+            },
+            {
+                "Text": "One thing has become unmistakable: our existential analysis of Dasein up till now cannot lay claim to {{c1::primordiality}}. Its {{c2::fore-having}} never included more than the inauthentic Being of Dasein, and of Dasein as less than a whole [{{c1::als unganzes}}]. If the Interpretation of Dasein\u2019s Being is to become primordial, as a foundation for working out the basic question of ontology, then it must first have brought to light existentially the Being of Dasein in its possibilities of {{c2::authenticity}} and {{c1::totality}}.",
+                "Citation": "Being and Time, H. 233"
+            },
+            {
+                "Text": "Thus arises the task of putting Dasein as a whole into our {{c1::fore-having}}. This signifies, however, that we must first of all raise the question of this entity\u2019s {{c2::potentiality-for-Being-a-whole}}. As long as Dasein is, there is in every case something still outstanding, which Dasein can be and will be. But to that which is thus outstanding, the \u2018{{c1::end}}\u2019 itself belongs. The \u2018end\u2019 of Being-in-the-world is {{c2::death}}. This end, which belongs to the potentiality-for-Being\u2014that is to say, to existence\u2014limits and determines in every case whatever totality is possible for Dasein.",
+                "Citation": "Being and Time, H. 234"
+            },
+            {
+                "Text": "If, however, Dasein\u2019s {{c1::Being-at-an-end}} in death, and therewith its Being-a-whole, are to be included in the discussion of its possibly Being-a-whole, and if this is to be done in a way which is appropriate to the phenomena, then we must have obtained an ontologically adequate conception of {{c2::death}}\u2014that is to say an existential conception of it. But as something of the character of Dasein, death is only in an {{c1::existentiell Being}} towards death [{{c2::Sein zum Tode}}]. The existential structure of such Being proves to be the ontologically constitutive state of Dasein\u2019s potentiality-for-Being-a-whole.",
+                "Citation": "Being and Time, H. 234"
+            },
+            {
+                "Text": "Thus the whole existing Dasein allows itself to be brought into our existential {{c1::fore-having}}. But can Dasein also exist authentically as a whole? How is the {{c2::authenticity}} of existence to be determined at all, if not with regard to authentic existing? Where do we get our {{c1::criterion}} for this? Manifestly, Dasein itself must, in its Being, present us with the possibility and the manner of its authentic existence, unless such existence is something that can be imposed upon it ontically, or ontologically fabricated.",
+                "Citation": "Being and Time, H. 234"
+            },
+            {
+                "Text": "But an authentic potentiality-for-Being is attested by the {{c1::conscience}}. And conscience, as a phenomenon of Dasein, demands, like death, a genuinely existential {{c2::Interpretation}}. Such an Interpretation leads to the insight that Dasein has an authentic potentiality-for-Being in that it wants to have a conscience. But this is an existentiell possibility which tends, from the very meaning of its Being, to be made definite in an existentiell way by {{c1::Being-towards-death}}.",
+                "Citation": "Being and Time, H. 234"
+            },
+            {
+                "Text": "By pointing out that Dasein has an authentic potentiality-for-Being-a-whole, the existential analytic acquires assurance as to the constitution of Dasein\u2019s {{c1::primordial Being}}. But at the same time the authentic potentiality-for-Being-a-whole becomes visible as a mode of {{c2::care}}. And therewith the phenomenally adequate ground for a primordial Interpretation of the meaning of Dasein\u2019s Being has also been assured. But the primordial ontological basis for Dasein\u2019s existentiality is {{c1::temporality}}.",
+                "Citation": "Being and Time, H. 234"
+            },
+            {
+                "Text": "In terms of temporality, the articulated structural totality of Dasein\u2019s Being as care first becomes existentially intelligible. The Interpretation of the meaning of Dasein\u2019s Being cannot stop with this demonstration. The existential-temporal analysis of this entity needs to be confirmed {{c1::concretely}}. We must go back and lay bare in their temporal meaning the ontological structures of Dasein which we have previously obtained. Everydayness reveals itself as a mode of {{c2::temporality}}.",
+                "Citation": "Being and Time, H. 234"
+            },
+            {
+                "Text": "But by thus recapitulating our preparatory fundamental analysis of Dasein, we will at the same time make the phenomenon of {{c1::temporality}} itself more transparent. In terms of temporality, it then becomes intelligible why Dasein is, and can be, {{c2::historical}} in the basis of its Being, and why, as historical, it can develop {{c1::historiology}}.",
+                "Citation": "Being and Time, H. 234"
+            }
+        ]
+    },
+    {
+        "args": {
+            "epub_file": "/mnt/c/Users/logan/Downloads/output/Being and Time - Martin Heidegger.epub",
+            "regex": "H\\.\\s\\d{1,3}",
+            "prompt_file": null,
+            "prompt_text": null,
+            "out": "/mnt/c/Users/logan/Downloads/output/sz.json",
+            "test": true,
+            "use_example": true,
+            "pages_per_chunk": 2,
+            "page_range": [
+                1,
+                6
+            ],
+            "temperature": [
+                0.7
+            ],
+            "max_completion_tokens": [
+                3000
+            ],
+            "top_p": [
+                0.5
+            ],
+            "overwrite": false
+        },
+        "kwargs": {},
+        "output": [
+            {
+                "Text": "WHAT have we gained by our preparatory analysis of {{c1::Dasein}}, and what are we seeking? In {{c2::Being-in-the-world}}, whose essential structures centre in {{c1::disclosedness}}, we have found the basic state of the entity we have taken as our theme. The totality of {{c2::Being-in-the-world}} as a structural whole has revealed itself as {{c1::care}}. In {{c1::care}} the Being of {{c2::Dasein}} is included. When we came to analyse this {{c1::Being}}, we took as our clue {{c2::existence(i)}}, which, in anticipation, we had designated as the essence of {{c1::Dasein}}. This term \u201c{{c2::existence}}\u201d formally indicates that {{c1::Dasein}} is as an understanding {{c2::potentiality-for-Being}}, which, in its {{c1::Being}}, makes an issue of that {{c2::Being}} itself. In every case, I myself am the entity which is in such a manner {{c1::[dergestalt seiend]}}. By working out the phenomenon of {{c2::care}}, we have given ourselves an insight into the concrete constitution of {{c1::existence}}\u2014that is, an insight into its equiprimordial connection with {{c2::Dasein}}\u2019s facticity and its falling.",
+                "Citation": "Being and Time, H. 231"
+            },
+            {
+                "Text": "What we are seeking is the answer to the question about the meaning of {{c1::Being}} in general, and, prior to that, the possibility of working out in a radical manner this basic question of all {{c2::ontology}}. But to lay bare the horizon within which something like {{c1::Being}} in general becomes intelligible, is tantamount to clarifying the possibility of having any understanding of {{c2::Being}} at all\u2014an understanding which itself belongs to the constitution of the entity called {{c1::Dasein}}.(ii) The understanding of {{c2::Being}}, however, cannot be radically clarified as an essential element in {{c1::Dasein}}\u2019s {{c2::Being}}, unless the entity to whose {{c1::Being}} it belongs, has been Interpreted primordially in itself with regard to its {{c2::Being}}.",
+                "Citation": "Being and Time, H. 231"
+            },
+            {
+                "Text": "Are we entitled to the claim that in characterizing {{c1::Dasein}} ontologically qua {{c2::care}} we have given a primordial Interpretation of this entity? By what criterion is the existential analytic of {{c1::Dasein}} to be assessed as regards its primordiality, or the lack of it? What, indeed, do we mean by the \u201c{{c2::primordiality}}\u201d of an ontological Interpretation? Ontological investigation is a possible kind of interpreting, which we have described as the working-out and appropriation of an understanding.(iii) Every interpretation has its {{c1::fore-having}}, its {{c2::fore-sight}}, and its {{c1::fore-conception}}.",
+                "Citation": "Being and Time, H. 232"
+            },
+            {
+                "Text": "If such an interpretation, as Interpretation, becomes an explicit task for research, then the totality of these \u2018{{c1::presuppositions}}\u2019 (which we call the \u201c{{c2::hermeneutical Situation}}\u201d) needs to be clarified and made secure beforehand, both in a basic experience of the \u2018{{c1::object}}\u2019 to be disclosed, and in terms of such an experience. In ontological Interpretation an entity is to be laid bare with regard to its own state of {{c2::Being}}; such an Interpretation obliges us first to give a phenomenal characterization of the entity we have taken as our theme, and thus to bring it into the scope of our {{c1::fore-having}}, with which all the subsequent steps of our analysis are to conform.",
+                "Citation": "Being and Time, H. 232"
+            },
+            {
+                "Text": "But at the same time these steps need to be guided by whatever {{c1::fore-sight}} is possible as to the kind of {{c2::Being}} which the entity may possess. Our {{c1::fore-having}} and our {{c2::fore-sight}} will then give us at the same time a sketch of that way of conceiving (or {{c1::fore-conception}}) to the level of which all structures of {{c2::Being}} are to be raised. If, however, the ontological Interpretation is to be a primordial one, this not only demands that in general the {{c1::hermeneutical Situation}} shall be one which has been made secure in conformity with the phenomena; it also requires explicit assurance that the whole of the entity which it has taken as its theme has been brought into the {{c2::fore-having}}.",
+                "Citation": "Being and Time, H. 232"
+            },
+            {
+                "Text": "Similarly, it is not enough just to make a first sketch of the {{c1::Being}} of this entity, even if our sketch is grounded in the phenomena. If we are to have a {{c2::fore-sight}} of {{c1::Being}}, we must see it in such a way as not to miss the unity of those structural items which belong to it and are possible. Only then can the question of the meaning of the unity which belongs to the whole entity\u2019s totality of {{c2::Being}}, be formulated and answered with any phenomenal assurance. Has the existential analysis of {{c1::Dasein}} which we have carried out, arisen from such a {{c2::hermeneutical Situation}} as will guarantee the primordiality which fundamental {{c1::ontology}} demands?",
+                "Citation": "Being and Time, H. 232"
+            },
+            {
+                "Text": "Can we progress from the result we have obtained\u2014that the being of {{c1::Dasein}} is {{c2::care}}\u2014to the question of the primordial unity of this structural whole?",
+                "Citation": "Being and Time, H. 232"
+            },
+            {
+                "Text": "What is the status of the {{c1::fore-sight}} by which our {{c2::ontological procedure}} has hitherto been guided? We have defined the idea of {{c1::existence}} as a {{c2::potentiality-for-Being}}\u2014a potentiality which understands, and for which its own {{c1::Being}} is an issue. But this potentiality-for-Being, as one which is in each case {{c2::mine}}, is free either for {{c1::authenticity}} or for {{c1::inauthenticity}} or for a mode in which neither of these has been differentiated. In starting with average {{c2::everydayness}}, our Interpretation has heretofore been confined to the analysis of such existing as is either {{c1::undifferentiated}} or inauthentic. Of course even along this path, it was possible and indeed necessary to reach a concrete determination of the {{c2::existentiality}} of existence. Nevertheless, our ontological characterization of the constitution of existence still lacked something essential.",
+                "Citation": "Being and Time, H. 233"
+            },
+            {
+                "Text": "\u201cExistence\u201d means a {{c1::potentiality-for-Being}}\u2014but also one which is {{c2::authentic}}. As long as the existential structure of an authentic potentiality-for-Being has not been brought into the idea of existence, the {{c1::fore-sight}} by which an existential Interpretation is guided will lack {{c2::primordiality}}. And how about what we have had in advance in our {{c1::hermeneutical Situation}} hitherto? How about its {{c2::fore-having}}? When and how has our existential analysis received any assurance that by starting with everydayness, it has forced the whole of {{c1::Dasein}}\u2014this entity from its \u2018beginning\u2019 to its \u2018end\u2019\u2014into the phenomenological view which gives us our theme? We have indeed contended that {{c2::care}} is the totality of the structural whole of Dasein\u2019s constitution.",
+                "Citation": "Being and Time, H. 233"
+            },
+            {
+                "Text": "But have we not at the very outset of our Interpretation renounced the possibility of bringing Dasein into view as a whole? Everydayness is precisely that Being which is \u2018between\u2019 {{c1::birth}} and {{c2::death}}. And if existence is definitive for Dasein\u2019s Being and if its essence is constituted in part by potentiality-for-Being, then, as long as Dasein exists, it must in each case, as such a potentiality, not yet be something. Any entity whose Essence is made up of existence, is essentially opposed to the possibility of our getting it in our grasp as an entity which is a whole. Not only has the hermeneutical Situation hitherto given us no assurance of \u2018having\u2019 the whole entity: one may even question whether \u201chaving\u201d the whole entity is attainable at all, and whether a primordial ontological Interpretation of Dasein will not founder on the kind of Being which belongs to the very entity we have taken as our theme.",
+                "Citation": "Being and Time, H. 233"
+            },
+            {
+                "Text": "One thing has become unmistakable: our existential analysis of Dasein up till now cannot lay claim to {{c1::primordiality}}. Its {{c2::fore-having}} never included more than the inauthentic Being of Dasein, and of Dasein as less than a whole [{{c1::als unganzes}}]. If the Interpretation of Dasein\u2019s Being is to become primordial, as a foundation for working out the basic question of ontology, then it must first have brought to light existentially the Being of Dasein in its possibilities of {{c2::authenticity}} and {{c1::totality}}.",
+                "Citation": "Being and Time, H. 233"
+            },
+            {
+                "Text": "Thus arises the task of putting Dasein as a whole into our {{c1::fore-having}}. This signifies, however, that we must first of all raise the question of this entity\u2019s {{c2::potentiality-for-Being-a-whole}}. As long as Dasein is, there is in every case something still outstanding, which Dasein can be and will be. But to that which is thus outstanding, the \u2018{{c1::end}}\u2019 itself belongs. The \u2018end\u2019 of Being-in-the-world is {{c2::death}}. This end, which belongs to the potentiality-for-Being\u2014that is to say, to existence\u2014limits and determines in every case whatever totality is possible for Dasein.",
+                "Citation": "Being and Time, H. 234"
+            },
+            {
+                "Text": "If, however, Dasein\u2019s {{c1::Being-at-an-end}} in death, and therewith its Being-a-whole, are to be included in the discussion of its possibly Being-a-whole, and if this is to be done in a way which is appropriate to the phenomena, then we must have obtained an ontologically adequate conception of {{c2::death}}\u2014that is to say an existential conception of it. But as something of the character of Dasein, death is only in an {{c1::existentiell Being}} towards death [{{c2::Sein zum Tode}}]. The existential structure of such Being proves to be the ontologically constitutive state of Dasein\u2019s potentiality-for-Being-a-whole.",
+                "Citation": "Being and Time, H. 234"
+            },
+            {
+                "Text": "Thus the whole existing Dasein allows itself to be brought into our existential {{c1::fore-having}}. But can Dasein also exist authentically as a whole? How is the {{c2::authenticity}} of existence to be determined at all, if not with regard to authentic existing? Where do we get our {{c1::criterion}} for this? Manifestly, Dasein itself must, in its Being, present us with the possibility and the manner of its authentic existence, unless such existence is something that can be imposed upon it ontically, or ontologically fabricated.",
+                "Citation": "Being and Time, H. 234"
+            },
+            {
+                "Text": "But an authentic potentiality-for-Being is attested by the {{c1::conscience}}. And conscience, as a phenomenon of Dasein, demands, like death, a genuinely existential {{c2::Interpretation}}. Such an Interpretation leads to the insight that Dasein has an authentic potentiality-for-Being in that it wants to have a conscience. But this is an existentiell possibility which tends, from the very meaning of its Being, to be made definite in an existentiell way by {{c1::Being-towards-death}}.",
+                "Citation": "Being and Time, H. 234"
+            },
+            {
+                "Text": "By pointing out that Dasein has an authentic potentiality-for-Being-a-whole, the existential analytic acquires assurance as to the constitution of Dasein\u2019s {{c1::primordial Being}}. But at the same time the authentic potentiality-for-Being-a-whole becomes visible as a mode of {{c2::care}}. And therewith the phenomenally adequate ground for a primordial Interpretation of the meaning of Dasein\u2019s Being has also been assured. But the primordial ontological basis for Dasein\u2019s existentiality is {{c1::temporality}}.",
+                "Citation": "Being and Time, H. 234"
+            },
+            {
+                "Text": "In terms of temporality, the articulated structural totality of Dasein\u2019s Being as care first becomes existentially intelligible. The Interpretation of the meaning of Dasein\u2019s Being cannot stop with this demonstration. The existential-temporal analysis of this entity needs to be confirmed {{c1::concretely}}. We must go back and lay bare in their temporal meaning the ontological structures of Dasein which we have previously obtained. Everydayness reveals itself as a mode of {{c2::temporality}}.",
+                "Citation": "Being and Time, H. 234"
+            },
+            {
+                "Text": "But by thus recapitulating our preparatory fundamental analysis of Dasein, we will at the same time make the phenomenon of {{c1::temporality}} itself more transparent. In terms of temporality, it then becomes intelligible why Dasein is, and can be, {{c2::historical}} in the basis of its Being, and why, as historical, it can develop {{c1::historiology}}.",
+                "Citation": "Being and Time, H. 234"
+            }
+        ]
+    }
+]
