@@ -215,10 +215,11 @@ def main():
             input_json_path = os.path.splitext(output_json_path)[0] + "_input.txt"
 
         error_log_path = os.path.splitext(output_json_path)[0] + "_errors.txt"
-        final_remaining_text_path =  os.path.splitext(output_json_path)[0] + "_remaining.txt"
+        remaining_text_path =  os.path.splitext(output_json_path)[0] + "_remaining.txt"
 
         all_outputs = []
         all_error_logs = []
+        all_remaining_text = []
 
 
         # Limit chunks if test flag is set
@@ -232,13 +233,13 @@ def main():
         
         for (temperature, max_completion_tokens, top_p) in product(args.temperature, args.max_completion_tokens, args.top_p):
             # For a given set of parameters, create anki cards for each chunk and handle errors
+            variables = {"temperature": temperature, "max_completion_tokens": max_completion_tokens, "top_p": top_p}
+
             all_anki_cards = []
             error_log = []
 
             error_count = 0
             consecutive_errors = 0
-
-          
 
             for i, chunk in enumerate(text_chunks):
                 anki_cards_output = create_anki_cards(chunk, system_prompt, temperature=temperature, max_completion_tokens=max_completion_tokens, top_p=top_p)
@@ -254,24 +255,23 @@ def main():
                     if anki_cards_json_remaining:
                         # print(f"Output: {i}\nRemaining JSON: {anki_cards_json_remaining}\n")
                         remaining_text = find_remaining_text(chunk, anki_cards_json_remaining)
-                        
+
                         # TODO: if it cuts off at the field name and there is no text to go off of to search for where it cut off in the input, use the last couple of words from the last good card to search
                         if remaining_text:
                             print(f"Remaining Text: {remaining_text}\n")
                             if i < len(text_chunks) - 1:
                                 text_chunks[i+1] = remaining_text + text_chunks[i+1]
                             else:
-                                with open(final_remaining_text_path, 'a') as final_remaining_text:
-                                    final_remaining_text.write(f"{final_remaining_text}\n")
+                                all_remaining_text.append({"remaining_text": remaining_text, "variables": variables})
                         else:
                             message = f"Output #{i} was incomplete but there was no remaining text."
                             print(message + "\nRemaining JSON: {anki_cards_json_remaining}\n")
-                            error_log.append({"Error": message , "Chunk": chunk, "Output": anki_cards_output, "Remaining JSON": anki_cards_json_remaining})
+                            error_log.append({"error": message , "chunk": chunk, "output": anki_cards_output, "remaining_json": anki_cards_json_remaining})
                 
                 else:
                     error_count += 1
                     consecutive_errors += 1
-                    error_log.append({"Error": error , "Chunk": chunk, "Output": anki_cards_output, "Terminal": False})
+                    error_log.append({"error": error , "chunk": chunk, "output": anki_cards_output, "terminal": False})
 
                 if consecutive_errors >= 3 or error_count >= len(text_chunks) * 0.2:
                     print("Too many errors encountered. Stopping execution.")
@@ -279,15 +279,21 @@ def main():
                     break
 
             # append the outputs and error logs for this set of variables to the total list
-            variables = {"temperature": temperature, "max_completion_tokens": max_completion_tokens, "top_p": top_p}
             all_outputs.append({"anki_cards": all_anki_cards, "variables": variables})
-            all_error_logs.append({"error_log": error_log, "variables": variables})
+            if error_log:
+                all_error_logs.append({"error_log": error_log, "variables": variables})
 
         # write the outputs and the error logs to file    
         print("Writing outputs to file...")
         write_json_to_file(output_json_path=output_json_path, output=all_outputs, args=args)
-        print("Writing error logs to file...")
-        write_json_to_file(output_json_path=error_log_path, output=all_error_logs, args=args)
+
+        if all_remaining_text:
+            print("Writing remaining text to file...")
+            write_json_to_file(output_json_path=remaining_text_path, output=all_remaining_text, args=args)
+
+        if all_error_logs:
+            print("Writing error logs to file...")
+            write_json_to_file(output_json_path=error_log_path, output=all_error_logs, args=args)
 
 
     else:
