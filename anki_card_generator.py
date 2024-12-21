@@ -42,12 +42,23 @@ def merge_adjacent_elements(lst=list, n=1):
     return [''.join(lst[i:i + n]) for i in range(0, len(lst), n)]
 
 # Function to split text based on regex or default to 8 paragraphs, ignores everything up to the first page number.
-def split_text(text, regex=None):
-    if regex:
-        return merge_adjacent_elements(re.split(ensure_brackets(regex), text)[1:], n=2)
+def split_text(text: str, regex=None, full_paragraphs=True, n_paragraphs_per_page=3):
+    if regex and not full_paragraphs:
+        text_chunks = merge_adjacent_elements(re.split(ensure_brackets(regex), text)[1:], n=2)
+    elif regex:
+        text_chunks=[]
+        text_chunk = ''
+        paragraphs = text.split('\n\n')
+        for i, paragraph in enumerate(paragraphs):
+            text_chunk += paragraph + "\n\n"
+            if (i > 1) and re.search(regex, paragraph):
+                text_chunks.append(text_chunk)
+                text_chunk = ''
     else:
-        paragraphs = text.split('\n')
-        return ['\n'.join(paragraphs[i:i+8]) for i in range(0, len(paragraphs), 8)]
+        paragraphs = text.split('\n\n')
+        text_chunks = ['\n\n'.join(paragraphs[i:i+n_paragraphs_per_page]) for i in range(0, len(paragraphs), n_paragraphs_per_page)]
+
+    return text_chunks
 
 # Function to create cloze deletion anki cards using OpenAI API
 def create_anki_cards(text_chunk, system_prompt, temperature=0.7, max_completion_tokens=2000, top_p=0.5):
