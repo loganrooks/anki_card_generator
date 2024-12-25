@@ -1,4 +1,8 @@
+import argparse
+from ast import arg
 import difflib
+import hashlib
+import inspect
 import json
 import os
 import statistics
@@ -8,17 +12,55 @@ from bs4 import BeautifulSoup
 from itertools import combinations
 import pandas as pd 
 import numpy as np 
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.WARNING, format='%(levelname)s: %(message)s')
 
 # def append_html_diff(html_file: Doc, lines1: , lines2):
 
-def flatten_runs(runs: list):
-    flattened_runs = {"args": {}, "output": []}
+def create_run_id(run: dict, modify=True):
+    run_id = run.get("run_id", None)
+    if not run_id:
+        hash_dict = json.dumps(run["args"], sort_keys=True)
+        run_id = hashlib.sha256(hash_dict.encode()).hexdigest()
+        if modify:
+            run["run_id"] = run_id
+    return run_id
+
+def add_run_ids(runs: list[dict]):
     for run in runs:
+        create_run_id(run, modify=True)
+
+def flatten_runs(runs: list):
+    # Initialize the flattened_runs dictionary with empty 'args' and 'output' lists
+    flattened_runs = {"args": {}, "output": []}
+
+    # Iterate over each run in the runs list
+    for run in runs:
+        # Ensure 'run_id' is added to 'args' with a list containing the run's 'run_id'
+        if "run_id" not in flattened_runs["args"]:
+            flattened_runs["args"]["run_id"] = [run["run_id"]]
+        else:
+            flattened_runs["args"]["run_id"].append(run["run_id"])
+
+        # Iterate over each key-value pair in the run's 'args' dictionary
         for key, value in run["args"].items():
-            flattened_runs["args"][key] = [value] if not flattened_runs["args"].get(key, None) else flattened_runs["args"][key].copy().append(key)
-        
+            # Add the value to the corresponding key in 'flattened_runs["args"]'
+            if key not in flattened_runs["args"]:
+                flattened_runs["args"][key] = [value]
+            else:
+                flattened_runs["args"][key].append(value)
+
+        # Iterate over each output in the run's 'output' list
         for output in run["output"]:
+            # Add 'run_id' to the output if it doesn't already have it
+            if "run_id" not in output:
+                output["run_id"] = create_run_id(run)
+            # Append the output to the 'flattened_runs["output"]' list
             flattened_runs["output"].append(output)
+
+    # Return the flattened_runs dictionary
     return flattened_runs
 
 def get_similarity(card_set_a, card_set_b):
@@ -38,41 +80,71 @@ def get_similarity(card_set_a, card_set_b):
 
     return similarity
 
+def check_same_args(flattened_runs: dict, run_ids: tuple, check_args: tuple):
+    check_args_dict = {}
+    args = flattened_runs["args"]
+
+    for run_id in run_ids:
+        run_index = args["run_id"].index(run_id)
+        for check_arg in check_args:
+            check_arg_value = args[check_arg][run_index]
+            if check_arg in check_args_dict.keys():
+                check_args_dict[check_arg].add(check_arg_value[0] if check_arg=="page_range" else check_arg_value)
+            else:
+                check_args_dict[check_arg] = set([check_arg_value[0]] if check_arg=="page_range" else [check_arg_value])
 
     
+    return all(len(value) == 1 for value in check_args_dict.values())
 
 
-def get_similarities_df(outputs, ignore_variables={}):
-    # give set of outputs, return pd.Dataframe with similarity column
+
+
+    return starting_page_a == starting_page_b and pages_per_chunk_a == pages_per_chunk_b
+
+
+def get_similarities_df(runs, ignore_variables={}):
+    # Initialize lists and sets for storing results and tracking warnings
+    flattened_runs = flatten_runs(runs)
+    outputs = flattened_runs["output"]
+    args = flattened_runs["args"]
     similarities = []
     all_variables = []
     variable_ids = set()
+    warned_indices = set()
 
+    # Iterate over all unique pairs of outputs
     for a, b in combinations(range(len(outputs)), 2):
-        cards_a = outputs[a]['anki_cards']
+        cards_a = outputs[a].get('anki_cards', [])
+        cards_b = outputs[b].get('anki_cards', [])
+
+        # Check if either output has no cards and log a warning once per output
+        if not check_same_args(flattened_runs, (outputs[a]["run_id"], outputs[b]["run_id"]), check_args=["page_range", "pages_per_chunk"]):
+            continue
+
+        if check_and_warn_empty_output(a, cards_a, warned_indices, "cards_a") or check_and_warn_empty_output(b, cards_b, warned_indices, "cards_b"):
+            continue
+
         from_variables = outputs[a]['variables']
-        cards_b = outputs[b]['anki_cards']
         to_variables = outputs[b]['variables']
 
-        ignore=False
-
-        for key in ignore_variables.keys():
-            if (from_variables.get(key, None) in ignore_variables.get(key, [])) or (to_variables.get(key, None) in ignore_variables.get(key, None)):
-                ignore=True
-                break
+        # Check if the pair should be ignored based on ignore_variables
+        ignore = any(
+            from_variables.get(key) in ignore_variables.get(key, []) or
+            to_variables.get(key) in ignore_variables.get(key, [])
+            for key in ignore_variables
+        )
 
         # TODO: this won't work if there are runs with different variables from the rest, 
         # would like to eventually have it so those are included too
 
         if not ignore:
+            # Calculate similarity and store results
             similarity = get_similarity(cards_a, cards_b)
             similarities.append(similarity)
+            variable_ids.update(from_variables.keys())
+            all_variables.append([a] + list(from_variables.values()) + [b] + list(to_variables.values()))                 
 
-            variable_ids.update(list(from_variables.keys()))
-
-            all_variables.append([a] + list(from_variables.values()) + [b] + list(to_variables.values()))
-
-    
+    # Create a MultiIndex for the DataFrame columns
     index = pd.MultiIndex.from_product([['from', 'to'], ["output_id"] + list(variable_ids)])
     similarities_df = pd.DataFrame(all_variables, columns=index)
     similarities_df['similarity'] = similarities
@@ -80,9 +152,14 @@ def get_similarities_df(outputs, ignore_variables={}):
     return similarities_df
 
 def get_cloze_descriptions(cloze_deletion_stats: pd.DataFrame, outputs_a: pd.DataFrame, outputs_b: pd.DataFrame, variables_a, variables_b, x: int, y=0):
+    
+    run_id_a = outputs_a.loc[x]["run_id"]
+    run_id_b = outputs_b.loc[x]["run_id"]
+
+    fromdesc = f"run_id: {run_id_a} // "
+    todesc = f"run_id: {run_id_b} // "
+    
     if not cloze_deletion_stats.empty:
-        fromdesc = f""
-        todesc = f""
 
         # get the stats for the entry in the outputs_a dataframe which will have as one of its columns its original index (since it could be a sub data frame)
         cloze_deletion_stats_a = cloze_deletion_stats.loc[outputs_a.loc[x]["index"]]
@@ -94,61 +171,131 @@ def get_cloze_descriptions(cloze_deletion_stats: pd.DataFrame, outputs_a: pd.Dat
         for stat, value in cloze_deletion_stats_b.items():
             todesc += f"{stat}: {value[y] if type(value)==list else value} // "
     else:
-        fromdesc, todesc = variables_a, variables_b
+        fromdesc += str(variables_a)
+        todesc += str(variables_b)
 
     return fromdesc, todesc
 
-def get_cloze_similarity():
-    pass
+def find_files_with_substring(directory: str, substring: str):
+    """
+    Find all filenames in the specified directory that contain the given substring.
+    
+    Args:
+        directory (str): The directory to search in.
+        substring (str): The substring to look for in filenames.
+    
+    Returns:
+        list: A list of filenames containing the substring.
+    """
+    matching_files = []
+    for root, dirs, files in os.walk(directory):
+        for file in files:
+            if substring in file:
+                matching_files.append(os.path.join(root, file))
+    return matching_files
 
-def create_html_diff(outputs_a: pd.DataFrame, outputs_b: pd.DataFrame, output_html_path, individual_cards=False, cloze_deletion_stats=pd.DataFrame()):
-    # side by side comparison between two equally long DataFrames with ankicards
+
+def check_and_warn_empty_output(index, output, warned_indices, output_name):
+    """
+    Check if the output is empty and log a warning if it hasn't been logged before.
+    
+    Parameters:
+    - index: The index of the output being checked.
+    - output: The output to check.
+    - warned_indices: A set to keep track of indices that have already triggered a warning.
+    - output_name: A string indicating the name of the output (for logging purposes).
+    - func_name: The name of the function where this check is being performed.
+    
+    Returns:
+    - bool: True if the output is empty and a warning was logged, False otherwise.
+    """
+    if not output and index not in warned_indices:
+        # Get the name of the calling function
+        caller = inspect.stack()[1].function
+        logging.warning("In function '{}': Output #{} in {} has no anki_cards generated".format(caller, index, output_name))
+        warned_indices.add(index)
+        return True
+    return not output
+
+def generate_pattern(n, special_patterns):
+    # Join the special patterns into a single regex pattern
+    special_patterns_regex = '|'.join(re.escape(pattern) for pattern in special_patterns) 
+    
+    # Define the pattern for splitting at commas and sentence-ending punctuation followed by n words
+    pattern = rf"\s+(?=\b(?:{special_patterns_regex})(?:[,.!?:;]?\s+\w+(?:\s+\w+){{{n-1}}}))|(?=,)(?<!\b{special_patterns_regex},)\s(?=\w+(?:\s\w+){{{n-1}}})|(?:[.!?:;])\s+(?=\w+)"
+    
+    #print(pattern)
+
+    return pattern
+
+def create_html_diff(outputs_a: pd.DataFrame, outputs_b: pd.DataFrame, output_html_path, args: dict[list], individual_cards=False, cloze_deletion_stats=pd.DataFrame(), compare_prompts=True):
+    # Initialize HTML diff tool and BeautifulSoup document
     d = difflib.HtmlDiff()
+    output_doc = BeautifulSoup("<html><body></body></html>", "html.parser")
+    warned_indices = set()
 
-    output_doc = BeautifulSoup()
-    output_doc.append(output_doc.new_tag("html"))
-    output_doc.html.append(output_doc.new_tag("body"))
+    pattern = generate_pattern(n=3, special_patterns=['i.e.', 'e.g.', 'and'])
 
+    # Iterate over the outputs, comparing corresponding entries
     for x in range(min(len(outputs_a), len(outputs_b))):
-        cards_a = outputs_a.loc[x]['anki_cards']
+        cards_a = outputs_a.loc[x].get('anki_cards', [])
+        cards_b = outputs_b.loc[x].get('anki_cards', [])
+
+        # Use the reusable function to check for empty outputs and log warnings
+        if check_and_warn_empty_output(outputs_a.loc[x]["index"], cards_a, warned_indices, "cards_a") or check_and_warn_empty_output(outputs_b.loc[x]["index"], cards_b, warned_indices, "cards_b"):
+            continue
+
         variables_a = outputs_a.loc[x]['variables']
-        cards_b = outputs_b.loc[x]['anki_cards']
         variables_b = outputs_b.loc[x]['variables']
 
         if individual_cards:
+            # Compare individual cards if specified
             for y in range(min(len(cards_a), len(cards_b))):
                 variables_a["card"] = y
                 variables_b["card"] = y
 
-                lines_a = re.split('(?<=[.!?,;])', cards_a[y]["Text"])
-                lines_b = re.split('(?<=[.!?,;])', cards_b[y]["Text"])
+           
+                
+               
+
+                lines_a = re.split(pattern, cards_a[y]["Text"])
+                lines_b = re.split(pattern, cards_b[y]["Text"])
 
                 fromdesc, todesc = get_cloze_descriptions(cloze_deletion_stats, outputs_a, outputs_b, variables_a, variables_b, x, y)
-
                 html_diff = d.make_file(lines_a, lines_b, fromdesc=fromdesc, todesc=todesc, context=True)
-                output_doc.extend(BeautifulSoup(html_diff, "html.parser"))
+                output_doc.body.append(BeautifulSoup(html_diff, "html.parser"))
+
+ 
 
         else:
-            text_a = ""
-            text_b = ""
+            # Compare concatenated text of all cards
+            text_a = "".join(card["Text"] for card in cards_a)
+            text_b = "".join(card["Text"] for card in cards_b)
 
-            for card in cards_a:
-                text_a += card["Text"]
-
-            for card in cards_b:
-                text_b += card["Text"]
-
-            lines_a = re.split('(?<=[.!?,;])', text_a)
-            lines_b = re.split('(?<=[.!?,;])', text_b)
+            lines_a = re.split(pattern, text_a)
+            lines_b = re.split(pattern, text_b)
 
             fromdesc, todesc = get_cloze_descriptions(cloze_deletion_stats, outputs_a, outputs_b, variables_a, variables_b, x, 0)
-  
-        
             html_diff = d.make_file(lines_a, lines_b, fromdesc=fromdesc, todesc=todesc, context=True)
-            output_doc.extend(BeautifulSoup(html_diff, "html.parser"))
+            output_doc.body.append(BeautifulSoup(html_diff, "html.parser"))
 
-            
+        if compare_prompts:
+            run_index_a = args["run_id"].index(outputs_a.loc[x].get("run_id"))
+            run_index_b = args["run_id"].index(outputs_b.loc[x].get("run_id"))
 
+            prompt_a = args["prompt_text"][run_index_a]
+            prompt_b = args["prompt_text"][run_index_b]
+
+            if prompt_a != prompt_b:
+                prompt_lines_a = re.split(pattern, prompt_a)
+                prompt_lines_b = re.split(pattern, prompt_b)
+
+                fromdesc, todesc = get_cloze_descriptions(cloze_deletion_stats, outputs_a, outputs_b, variables_a, variables_b, x, 0)  
+                html_diff = d.make_file(prompt_lines_a, prompt_lines_b, fromdesc="PROMPT \\ " + fromdesc, todesc="PROMPT \\ " + todesc, context=False)
+                output_doc.body.append(BeautifulSoup(html_diff, "html.parser"))
+
+
+    # Write the final HTML document to the specified path
     with open(output_html_path, "w", encoding="utf-8") as file:
         file.write(str(output_doc))
         
@@ -170,6 +317,7 @@ def create_html_diff(outputs_a: pd.DataFrame, outputs_b: pd.DataFrame, output_ht
 
 def extract_stats_from_text(text):
     clozes = re.findall(r"\{\{c\d+::(.+?)\}\}", text)
+
     original_text = re.sub(r"\{\{c\d+::(.+?)\}\}", r"\1", text)
     cloze_percentage = len(' '.join(clozes)) / len(original_text) * 100
 
@@ -221,7 +369,6 @@ def compute_similarity(input_string, reference_string):
 
 
 
-
 def get_cloze_deletions_stats(anki_cards, individual_cards=True):
     all_stats = {}
     text = ""
@@ -245,6 +392,10 @@ def get_all_cloze_deletion_stats(outputs, variable_ids=["temperature", "top_p", 
     all_cloze_stats = []
     for i in range(len(outputs)):
         anki_cards = outputs[i]["anki_cards"]
+        if not anki_cards:
+            logging.warning(f"Output #{i} has no anki_cards generated.")
+            continue
+        
         variables = outputs[i]["variables"]
         cloze_stats = []
 
@@ -259,19 +410,36 @@ def get_all_cloze_deletion_stats(outputs, variable_ids=["temperature", "top_p", 
     return pd.DataFrame(all_cloze_stats.copy(), columns=variable_ids + list(all_stats.keys()))
 
 def main():
-    runs_json_path = os.path.dirname(__file__) + "/outputs/sz_test.json"
+    parser = argparse.ArgumentParser()
+    parser.add_argument('json_file', type=str, help='Path to the json file with the runs')
+    parser.add_argument('--index_range', type=int, nargs=2, help='Range of the runs you want to get stats for that are in the file', default=[0,-1])
+
+
+
+    args = parser.parse_args()
+
+    if args.json_file is None:
+        args.json_file = os.path.dirname(__file__) + "/../outputs/levinas_totality_and_infinity_test.json"
+
+
+    runs_json_path = args.json_file
     with open(runs_json_path, 'r') as runs_json:
         runs = json.load(runs_json)
+        runs = runs[args.index_range[0]:args.index_range[1]] if len(runs) > 1 else runs
+    add_run_ids(runs)
 
     flattened_runs = flatten_runs(runs)
     output_df = pd.DataFrame(flattened_runs["output"])
+    pd.set_option('display.width', 160)
+    pd.set_option('display.max_columns', 30)
     
     ignore_variables = {"max_completion_tokens": [1200, 2000]}
-    similarities_df = get_similarities_df(flattened_runs['output'], ignore_variables=ignore_variables)
+    similarities_df = get_similarities_df(runs, ignore_variables=ignore_variables)
     print(similarities_df.head())
     most_different_indices = similarities_df["similarity"].nsmallest(10).index
     print(similarities_df.loc[most_different_indices])
-    output_html_diff_path = os.path.dirname(__file__) + "/outputs/sz_html_diff_most.html"
+    output_html_diff_path = os.path.splitext(runs_json_path)[0] + "_diff.html"
+
     most_different_indices_a = similarities_df.loc[most_different_indices]['from']['output_id']
     outputs_a = output_df.loc[most_different_indices_a].reset_index()
 
@@ -281,7 +449,7 @@ def main():
     cloze_deletion_stats = get_all_cloze_deletion_stats(flattened_runs["output"], individual_cards=False)
 
     
-    create_html_diff(outputs_a, outputs_b, output_html_path=output_html_diff_path, cloze_deletion_stats=cloze_deletion_stats)
+    create_html_diff(outputs_a, outputs_b, output_html_path=output_html_diff_path, cloze_deletion_stats=cloze_deletion_stats, args=flattened_runs["args"])
 
 
 
@@ -289,9 +457,14 @@ def main():
 
     output_percentage_html_diff_path = os.path.splitext(output_html_diff_path)[0] + "_percentage.html"
 
-    largest_percentage_indices = cloze_deletion_stats["cloze_percentage"].nlargest(10).index
+    largest_percentage_indices = cloze_deletion_stats["cloze_percentage"].nlargest(5).index
+    smallest_percentage_indices = cloze_deletion_stats["cloze_percentage"].nsmallest(5).index
     # smallest_average_indices = cloze_deletion_stats["average_cloze"].nsmallest(10).index
-    print(cloze_deletion_stats.loc[largest_percentage_indices])
+    outputs_a = output_df.loc[largest_percentage_indices].reset_index()
+    outputs_b = output_df.loc[smallest_percentage_indices].reset_index()
+
+    create_html_diff(outputs_a, outputs_b, output_html_path=output_percentage_html_diff_path, cloze_deletion_stats=cloze_deletion_stats, args=flattened_runs["args"])
+
     # print(cloze_deletion_stats.loc[smallest_average_indices])
 
     # largest_percentage_indices_a = similarities_df.loc[most_different_indices]['from']['output_id']
