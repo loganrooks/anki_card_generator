@@ -4,3 +4,7 @@ outputs/
 .vscode/
 .venv/
 test/
+
+# Python bytecode
+__pycache__/
+*.pyc
