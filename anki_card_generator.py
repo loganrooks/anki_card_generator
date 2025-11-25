@@ -1,6 +1,7 @@
 import csv
 import datetime
 import hashlib
+import logging
 import string
 from openai import OpenAI
 import ebooklib
@@ -14,6 +15,13 @@ import os
 import math
 from itertools import product
 
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+logger = logging.getLogger(__name__)
 
 client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
 
@@ -141,7 +149,7 @@ def extract_hierarchy_from_epub(epub_path, header_tags, start_page=5, footnote_t
                                 text.append(paragraph.get_text())
                             break
                         else:
-                            print(f"Level: {level}\nNext Element: {next_element}\nNext Element Sibling: {next_element.next_sibling}\nNext Element Sibling Sibling: {next_element.next_sibling.next_sibling}\n")
+                            logger.debug(f"Level: {level}\nNext Element: {next_element}\nNext Element Sibling: {next_element.next_sibling}\nNext Element Sibling Sibling: {next_element.next_sibling.next_sibling}")
                             break
                 structure.append({
                                 'title': title,
@@ -271,8 +279,8 @@ def format_as_json(output):
                 counter += 1
                 if counter == 1:
                     outer_scope_start = i
-                    counter = 0 
-        print(f"Outer Scope Start: {outer_scope_start}\n")
+                    counter = 0
+        logger.debug(f"Outer Scope Start: {outer_scope_start}")
         # If an outer scope '{' bracket is found, find the first closing '}' bracket that precedes it
         if outer_scope_start != -1:
             end_index = output.rfind('}', 0, outer_scope_start) + 1
@@ -280,21 +288,21 @@ def format_as_json(output):
 
             remaining_start = output.find('{', end_index)
             remaining_content = output[remaining_start:-1].strip('```').strip()
-            print(f"Remaining JSON: {remaining_content}")
+            logger.debug(f"Remaining JSON: {remaining_content}")
 
         else:
             end_index = len(output)
             cleaned_output = output[start_index:end_index].strip('```')
             remaining_content = None
         
-        print(f"Start Index: {start_index}\n")
-        print(f"End Index: {end_index}\n")
-    
+        logger.debug(f"Start Index: {start_index}")
+        logger.debug(f"End Index: {end_index}")
+
         # Load the JSON data
         json_output = json.loads(cleaned_output)
         return (json_output, remaining_content), None
     except json.JSONDecodeError as e:
-        print(f"Error: {str(e)}\nCleaned Beginning:{cleaned_output[:100]}\nCleaned End: {cleaned_output[-101:]}\n")
+        logger.error(f"JSON decode error: {e}\nCleaned Beginning: {cleaned_output[:100]}\nCleaned End: {cleaned_output[-101:]}")
         return None, str(e)
     
 def find_remaining_text(input_chunk, remaining_content):
@@ -323,12 +331,12 @@ def write_json_to_file(output_json_path: str, output: str, args: argparse.Argume
         with open(output_json_path, mode, encoding='utf8') as output_file:
                 output = [{"args": vars(args), "output": output.copy(), "run_id": run_id}]
                 if not args.overwrite:
-                    try: 
+                    try:
                         output_file.seek(0)
                         existing_content = json.loads(output_file.read())
-                        output.extend(existing_content)          
-                    except:
-                        print("File corrupted, empty or is not a list. Forcing overwrite.")
+                        output.extend(existing_content)
+                    except (json.JSONDecodeError, ValueError) as e:
+                        logger.warning(f"File corrupted, empty or is not a list. Forcing overwrite. Error: {e}")
                     finally:
                         output_file.seek(0)
                         output_file.truncate()
@@ -354,9 +362,9 @@ def write_json_to_csv(output_csv_path: str, output: str, args: argparse.Argument
                     existing_content = list(csv.DictReader(output_file))
                     # Extend the flattened JSON list with the existing content
                     flattened_json.extend(existing_content)
-                except:
+                except (csv.Error, ValueError) as e:
                     # Handle cases where the file is corrupted, empty, or not a list
-                    print("File corrupted, empty or is not a list. Forcing overwrite.")
+                    logger.warning(f"File corrupted, empty or is not valid CSV. Forcing overwrite. Error: {e}")
                 finally:
                     # Move the file pointer to the beginning and truncate the file
                     output_file.seek(0)
@@ -372,10 +380,10 @@ def write_json_to_csv(output_csv_path: str, output: str, args: argparse.Argument
 def flatten_json(nested_json):
     """
     Flatten a nested JSON structure.
-    
+
     Args:
         nested_json (list): A list of dictionaries, potentially nested.
-    
+
     Returns:
         list: A list of flattened dictionaries.
     """
@@ -414,17 +422,17 @@ def flatten_json(nested_json):
         else:
             flattened_list.append(flatten_dict(item))
     return flattened_list
-    
 
-# Main function to handle CLI arguments and process the epub file
-def main():
+
+def parse_arguments() -> argparse.Namespace:
+    """Parse and return command line arguments."""
     parser = argparse.ArgumentParser(description='Generate cloze deletion anki cards from an epub file.')
     # I/O
     parser.add_argument('epub_path', type=str, help='Path to the epub file')
     parser.add_argument('-o', '--out', type=str, required=True, help='Output JSON file path')
     parser.add_argument('-w', '--overwrite', action='store_true', help='Overwrite what is in the output destination')
-        
-    # FOR TEXT BATCHING AS INPUT TO THE LLM 
+
+    # FOR TEXT BATCHING AS INPUT TO THE LLM
     parser.add_argument('-r', '--regex', type=str, help='Regular expression to split the text. If none given then will default to extracting on the basis of chunk size.', default=None)
     parser.add_argument('--pages_per_chunk', type=int, help='Number of pages per text chunk to be inputed to the model', default=1)
     parser.add_argument('--page_range', type=int, nargs=2, help='Number of total pages to be onverted. If none given, then will default to all of text.', default=[1, 0])
@@ -449,173 +457,351 @@ def main():
     # MISCELLANEOUS
     parser.add_argument('--test', action='store_true', help='Generate Anki cards for the first chunk only and append "_test" to the output filename')
     parser.add_argument('--use_example', action='store_true', help='Use example ANKI cards to test file writing')
-    
-    args = parser.parse_args()
-    # Generate a unique run ID based on the arguments and timestamp
+
+    return parser.parse_args()
+
+
+def generate_run_id(args: argparse.Namespace) -> str:
+    """Generate a unique run ID based on arguments and timestamp."""
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-4]
     args.timestamp = timestamp
     hash_dict = json.dumps(vars(args), sort_keys=True)
-    run_id = hashlib.sha256(hash_dict.encode()).hexdigest()
-
-    if not args.use_example:
-
-        # Extract text from epub file
-        parsed_epub = extract_text_from_epub(args.epub_path, footnote_tag=args.footnote_tag, toc_tag=args.toc_tag, copyright_tag=args.copyright_tag)
-
-        # Split text based on regex or default to 8 paragraphs
-        if args.regex:
-            text_chunks = merge_adjacent_elements(split_text(parsed_epub.text, args.regex))
-            text_chunks = text_chunks[math.ceil(args.page_range[0]/args.pages_per_chunk) - 1: math.ceil(args.page_range[1]/args.pages_per_chunk) - 1]
-
-        else:
-            hierarchy = extract_hierarchy_from_epub(epub_path=args.epub_path, header_tags=args.header_tags, start_page=args.start_page, footnote_tag=args.footnote_tag)
-            text_chunks = format_hierarchy_for_llm(parsed_epub.title, hierarchy, args.chunk_length, args.full_paragraphs)
-
-        # Load prompt instructions from file or use provided prompt text
-        if args.prompt_file:
-            with open(args.prompt_file, 'r') as file:
-                system_prompt = file.read()
-        elif args.prompt_text:
-            system_prompt = args.prompt_text
-        else:
-            system_prompt = (
-                f"You are a philosophy professor creating Anki flash cards from a given text for self-study purposes. "
-                f"You will be given a chunk of text from one of {parsed_epub.author}'s books, to make Anki cloze deletion cards. "
-                "Create as many flash cards as needed following these rules:\n"
-                "- Do not create duplicates.\n"
-                "- Provide only the JSON for the flash cards; any other text will be ignored.\n"
-                "- Format the cards with cloze deletion for the front.\n"
-                "- Include the text citation with page number under the field 'Citation'.\n"
-                "- Do not invent anything; use only the given text.\n"
-                "- Do not just remove single words for cloze deletion; include phrases or clauses as well.\n"
-                "- Emphasis: Cloze delete roughly one-third of the input, ensuring all German, Greek, French, or Latin phrases/terms are cloze deleted. Aim for at least 30 cloze deletions per card, ideally 40, with high density. Cloze delete even regular words if you are unable to meet the quota.\n"
-                "- The 'Text' field should contain at least a paragraph (4-5 sentences) with one-third cloze deletions per card but max 3 clozes (c1, c2, c3). Multiple 'c1's, 'c2's, and possibly 'c3's should be thematically related.\n"
-                "- Write in English (unless there are German, Latin, or Greek terms).\n"
-                "- Ensure each 'Text' field has at least 4 sentences. Do not create so many cards that some have less than 4 sentences. It's okay for some cards to have up to 8-10 sentences.\n"
-                "- Cloze delete significant nouns, verbs, words, and phrases (and every single Greek, German, French, and Latin term cloze deleted and tagged with 'c3'). Split other cloze deletions roughly 50/50 per card between 'c1' and 'c2', grouping them thematically.\n"
-                "- Ensure each card is self-complete with enough context to recognize and understand its meaning vaguely on its own. If part of the passage includes a quote from another philosopher, provide enough context prior to the quote.\n"
-                "- Ensure all instances and semantically similar instances of a deleted term are clozed. These cards should not be easy, I want no left over hints."
-                f"- Cloze delete all semantically similar instances of any phrase or term you cloze delete. Cloze delete all of {parsed_epub.author}'s terminology and all of his definitions. Most subjects and predicates of sentences must be cloze deleted."
-                "- Example format for 'Text' field: \"The full {{c1::essence of truth}}, including its most proper {{c1::nonessence}}, keeps {{c2::Dasein}} in need by this perpetual {{c1::turning to and fro}}. {{c2::Dasein}} is a {{c1::turning into need}}. From the {{c2::Da-sein}} of human beings and from it alone arises the disclosure of {{c1::necessity}} and, as a result, the {{c1::possibility of being transposed}} into what is {{c2::inevitable}}. The disclosure of beings as such is {{c1::simultaneously}} and {{c1::intrinsically}} the {{c2::concealing of beings}}.\""
-            )
-
-        if args.regex:
-            system_prompt += f"Include the title '{parsed_epub.title}' along with the page number in the citation. You can locate the page numbers using the regex '{args.regex}'. Make sure to keep track of when you cross page numbers and cite accordingly. Every text chunk starts with a page number and there should be a total of {str(args.pages_per_chunk)} pages per text chunk."
-        else:
-            system_prompt += f"Citations should be formatted as [{parsed_epub.title}: Header1, Header2 (optional), Header3 (optional), Paragraph Number]. Every text chunk starts with a citation to indicate what subsection of the text the chunk is located in, and there will be a citation where the subsection changes."
-        args.prompt_text = system_prompt
-        output_json_path = args.out
-        output_csv_path = os.path.splitext(output_json_path)[0] + ".csv"
-
-        if args.test:
-            # output_json_path = os.path.splitext(output_json_path)[0] + "_test_t{}_tp{}_mct{}.json".format(str(args.temperature).translate(str.maketrans('', '',string.punctuation)), str(args.top_p).translate(str.maketrans('', '',string.punctuation)), args.max_completion_tokens)
-            output_json_path = os.path.splitext(output_json_path)[0] + "_test.json"
-            input_json_path = os.path.splitext(output_json_path)[0] + "_input.txt"
-
-        error_log_path = os.path.splitext(output_json_path)[0] + "_errors.txt"
-        remaining_text_path =  os.path.splitext(output_json_path)[0] + "_remaining.txt"
-
-        all_outputs = []
-        all_error_logs = []
-        all_remaining_text = []
+    return hashlib.sha256(hash_dict.encode()).hexdigest()
 
 
-        # Limit chunks if test flag is set
-        if args.test:
-            text_chunks = text_chunks[:1] if len(text_chunks) > 1 else text_chunks
-            print(f"No. of Text Chunks: {len(text_chunks)}\n")
-            print("Writing inputs to file...")
-            try:
-                write_json_to_file(output_json_path=input_json_path, output=text_chunks, args=args, run_id=run_id, mode='a+')
-            except FileNotFoundError:
-                write_json_to_file(output_json_path=input_json_path, output=text_chunks, args=args, run_id=run_id, mode='w+')
-        else:
-            text_chunks = text_chunks[args.chunk_range[0]:args.chunk_range[1]]
+def extract_and_chunk_text(args: argparse.Namespace) -> tuple:
+    """Extract text from EPUB and split into chunks.
 
-        for (temperature, max_completion_tokens, top_p) in product(args.temperature, args.max_completion_tokens, args.top_p):
-            # For a given set of parameters, create anki cards for each chunk and handle errors
-            variables = {"temperature": temperature, "max_completion_tokens": max_completion_tokens, "top_p": top_p}
+    Returns:
+        tuple: (text_chunks, parsed_epub)
+    """
+    parsed_epub = extract_text_from_epub(
+        args.epub_path,
+        footnote_tag=args.footnote_tag,
+        toc_tag=args.toc_tag,
+        copyright_tag=args.copyright_tag
+    )
 
-            all_anki_cards = []
-            error_log = []
+    if args.regex:
+        text_chunks = merge_adjacent_elements(split_text(parsed_epub.text, args.regex))
+        text_chunks = text_chunks[
+            math.ceil(args.page_range[0] / args.pages_per_chunk) - 1:
+            math.ceil(args.page_range[1] / args.pages_per_chunk) - 1
+        ]
+    else:
+        hierarchy = extract_hierarchy_from_epub(
+            epub_path=args.epub_path,
+            header_tags=args.header_tags,
+            start_page=args.start_page,
+            footnote_tag=args.footnote_tag
+        )
+        text_chunks = format_hierarchy_for_llm(
+            parsed_epub.title,
+            hierarchy,
+            args.chunk_length,
+            args.full_paragraphs
+        )
 
-            error_count = 0
+    return text_chunks, parsed_epub
+
+
+def build_system_prompt(args: argparse.Namespace, parsed_epub: Namespace) -> str:
+    """Build or load the system prompt for card generation."""
+    if args.prompt_file:
+        with open(args.prompt_file, 'r') as file:
+            system_prompt = file.read()
+    elif args.prompt_text:
+        system_prompt = args.prompt_text
+    else:
+        system_prompt = (
+            f"You are a philosophy professor creating Anki flash cards from a given text for self-study purposes. "
+            f"You will be given a chunk of text from one of {parsed_epub.author}'s books, to make Anki cloze deletion cards. "
+            "Create as many flash cards as needed following these rules:\n"
+            "- Do not create duplicates.\n"
+            "- Provide only the JSON for the flash cards; any other text will be ignored.\n"
+            "- Format the cards with cloze deletion for the front.\n"
+            "- Include the text citation with page number under the field 'Citation'.\n"
+            "- Do not invent anything; use only the given text.\n"
+            "- Do not just remove single words for cloze deletion; include phrases or clauses as well.\n"
+            "- Emphasis: Cloze delete roughly one-third of the input, ensuring all German, Greek, French, or Latin phrases/terms are cloze deleted. Aim for at least 30 cloze deletions per card, ideally 40, with high density. Cloze delete even regular words if you are unable to meet the quota.\n"
+            "- The 'Text' field should contain at least a paragraph (4-5 sentences) with one-third cloze deletions per card but max 3 clozes (c1, c2, c3). Multiple 'c1's, 'c2's, and possibly 'c3's should be thematically related.\n"
+            "- Write in English (unless there are German, Latin, or Greek terms).\n"
+            "- Ensure each 'Text' field has at least 4 sentences. Do not create so many cards that some have less than 4 sentences. It's okay for some cards to have up to 8-10 sentences.\n"
+            "- Cloze delete significant nouns, verbs, words, and phrases (and every single Greek, German, French, and Latin term cloze deleted and tagged with 'c3'). Split other cloze deletions roughly 50/50 per card between 'c1' and 'c2', grouping them thematically.\n"
+            "- Ensure each card is self-complete with enough context to recognize and understand its meaning vaguely on its own. If part of the passage includes a quote from another philosopher, provide enough context prior to the quote.\n"
+            "- Ensure all instances and semantically similar instances of a deleted term are clozed. These cards should not be easy, I want no left over hints."
+            f"- Cloze delete all semantically similar instances of any phrase or term you cloze delete. Cloze delete all of {parsed_epub.author}'s terminology and all of his definitions. Most subjects and predicates of sentences must be cloze deleted."
+            "- Example format for 'Text' field: \"The full {{c1::essence of truth}}, including its most proper {{c1::nonessence}}, keeps {{c2::Dasein}} in need by this perpetual {{c1::turning to and fro}}. {{c2::Dasein}} is a {{c1::turning into need}}. From the {{c2::Da-sein}} of human beings and from it alone arises the disclosure of {{c1::necessity}} and, as a result, the {{c1::possibility of being transposed}} into what is {{c2::inevitable}}. The disclosure of beings as such is {{c1::simultaneously}} and {{c1::intrinsically}} the {{c2::concealing of beings}}.\""
+        )
+
+    # Add citation format instructions based on chunking method
+    if args.regex:
+        system_prompt += f"Include the title '{parsed_epub.title}' along with the page number in the citation. You can locate the page numbers using the regex '{args.regex}'. Make sure to keep track of when you cross page numbers and cite accordingly. Every text chunk starts with a page number and there should be a total of {str(args.pages_per_chunk)} pages per text chunk."
+    else:
+        system_prompt += f"Citations should be formatted as [{parsed_epub.title}: Header1, Header2 (optional), Header3 (optional), Paragraph Number]. Every text chunk starts with a citation to indicate what subsection of the text the chunk is located in, and there will be a citation where the subsection changes."
+
+    return system_prompt
+
+
+def setup_output_paths(args: argparse.Namespace) -> dict:
+    """Set up and return all output file paths."""
+    output_json_path = args.out
+    output_csv_path = os.path.splitext(output_json_path)[0] + ".csv"
+
+    if args.test:
+        output_json_path = os.path.splitext(output_json_path)[0] + "_test.json"
+        input_json_path = os.path.splitext(output_json_path)[0] + "_input.txt"
+    else:
+        input_json_path = None
+
+    error_log_path = os.path.splitext(output_json_path)[0] + "_errors.txt"
+    remaining_text_path = os.path.splitext(output_json_path)[0] + "_remaining.txt"
+
+    return {
+        'output_json': output_json_path,
+        'output_csv': output_csv_path,
+        'input_json': input_json_path,
+        'error_log': error_log_path,
+        'remaining_text': remaining_text_path
+    }
+
+
+def generate_cards_for_params(
+    text_chunks: list,
+    system_prompt: str,
+    temperature: float,
+    max_completion_tokens: int,
+    top_p: float
+) -> tuple:
+    """Generate Anki cards for a single set of hyperparameters.
+
+    Returns:
+        tuple: (all_anki_cards, error_log, remaining_text_entries, should_stop)
+    """
+    variables = {
+        "temperature": temperature,
+        "max_completion_tokens": max_completion_tokens,
+        "top_p": top_p
+    }
+
+    all_anki_cards = []
+    error_log = []
+    remaining_text_entries = []
+
+    error_count = 0
+    consecutive_errors = 0
+
+    for i, chunk in enumerate(text_chunks):
+        anki_cards_output = create_anki_cards(
+            chunk,
+            system_prompt,
+            temperature=temperature,
+            max_completion_tokens=max_completion_tokens,
+            top_p=top_p
+        )
+        anki_cards_json, error = format_as_json(anki_cards_output)
+
+        if anki_cards_json:
+            anki_cards_json_cleaned, anki_cards_json_remaining = anki_cards_json
+            all_anki_cards.extend(anki_cards_json_cleaned)
             consecutive_errors = 0
 
-            for i, chunk in enumerate(text_chunks):
-                anki_cards_output = create_anki_cards(chunk, system_prompt, temperature=temperature, max_completion_tokens=max_completion_tokens, top_p=top_p)
-                anki_cards_json, error = format_as_json(anki_cards_output)
+            # Check for incomplete output with remaining content
+            if anki_cards_json_remaining:
+                remaining_text = find_remaining_text(chunk, anki_cards_json_remaining)
 
-
-                if anki_cards_json:
-                    anki_cards_json_cleaned, anki_cards_json_remaining = anki_cards_json
-                    all_anki_cards.extend(anki_cards_json_cleaned)
-                    consecutive_errors = 0 # reset the counter because we didn't encounter an error in generating cards nor formatting as json
-
-                    # check if there is any content remaining from an output that was incomplete i.e. with a card that didn't fully generate
-                    if anki_cards_json_remaining:
-                        # print(f"Output: {i}\nRemaining JSON: {anki_cards_json_remaining}\n")
-                        remaining_text = find_remaining_text(chunk, anki_cards_json_remaining)
-
-                        # TODO: if it cuts off at the field name and there is no text to go off of to search for where it cut off in the input, use the last couple of words from the last good card to search
-                        if remaining_text:
-                            print(f"Remaining Text: {remaining_text}\n")
-                            if i < len(text_chunks) - 1:
-                                text_chunks[i+1] = remaining_text + text_chunks[i+1]
-                            else:
-                                all_remaining_text.append({"remaining_text": remaining_text, "variables": variables})
-                        else:
-                            message = f"Output #{i} was incomplete but there was no remaining text."
-                            print(message + "\nRemaining JSON: {anki_cards_json_remaining}\n")
-                            error_log.append({"error": message , "chunk": chunk, "output": anki_cards_output, "remaining_json": anki_cards_json_remaining})
-                
+                if remaining_text:
+                    logger.debug(f"Remaining Text: {remaining_text}")
+                    if i < len(text_chunks) - 1:
+                        text_chunks[i + 1] = remaining_text + text_chunks[i + 1]
+                    else:
+                        remaining_text_entries.append({
+                            "remaining_text": remaining_text,
+                            "variables": variables
+                        })
                 else:
-                    error_count += 1
-                    consecutive_errors += 1
-                    error_log.append({"error": error , "chunk": chunk, "output": anki_cards_output, "terminal": False})
+                    message = f"Output #{i} was incomplete but there was no remaining text."
+                    logger.warning(f"{message}\nRemaining JSON: {anki_cards_json_remaining}")
+                    error_log.append({
+                        "error": message,
+                        "chunk": chunk,
+                        "output": anki_cards_output,
+                        "remaining_json": anki_cards_json_remaining
+                    })
+        else:
+            error_count += 1
+            consecutive_errors += 1
+            error_log.append({
+                "error": error,
+                "chunk": chunk,
+                "output": anki_cards_output,
+                "terminal": False
+            })
 
-                if consecutive_errors >= 3 or error_count >= len(text_chunks) * 0.2:
-                    print("Too many errors encountered. Stopping execution.")
-                    error_log[-1]["Terminal"] = True
-                    break
+        if consecutive_errors >= 3 or error_count >= len(text_chunks) * 0.2:
+            logger.error("Too many errors encountered. Stopping execution.")
+            error_log[-1]["Terminal"] = True
+            break
 
-            # append the outputs and error logs for this set of variables to the total list
-            all_outputs.append({"anki_cards": all_anki_cards, "variables": variables})
-            if error_log:
-                all_error_logs.append({"error_log": error_log, "variables": variables})
+    return all_anki_cards, error_log, remaining_text_entries, variables
 
-        # write the outputs and the error logs to file    
-        print("Writing outputs to file...")
+
+def write_all_outputs(
+    paths: dict,
+    all_outputs: list,
+    all_error_logs: list,
+    all_remaining_text: list,
+    args: argparse.Namespace,
+    run_id: str
+) -> None:
+    """Write all output files (JSON, CSV, errors, remaining text)."""
+    logger.info("Writing outputs to file...")
+    try:
+        write_json_to_file(
+            output_json_path=paths['output_json'],
+            output=all_outputs,
+            args=args,
+            run_id=run_id,
+            mode='a+'
+        )
+        write_json_to_csv(
+            output_csv_path=paths['output_csv'],
+            output=all_outputs,
+            args=args,
+            run_id=run_id,
+            mode='a+'
+        )
+    except FileNotFoundError:
+        write_json_to_file(
+            output_json_path=paths['output_json'],
+            output=all_outputs,
+            args=args,
+            run_id=run_id,
+            mode="w+"
+        )
+        write_json_to_csv(
+            output_csv_path=paths['output_csv'],
+            output=all_outputs,
+            args=args,
+            run_id=run_id,
+            mode='w+'
+        )
+
+    if all_remaining_text:
+        logger.info("Writing remaining text to file...")
         try:
-            write_json_to_file(output_json_path=output_json_path, output=all_outputs, args=args, run_id=run_id, mode='a+')
-            write_json_to_csv(output_csv_path=output_csv_path, output=all_outputs, args=args, run_id=run_id, mode='a+')
+            write_json_to_file(
+                output_json_path=paths['remaining_text'],
+                output=all_remaining_text,
+                args=args,
+                run_id=run_id,
+                mode="a+"
+            )
         except FileNotFoundError:
-            write_json_to_file(output_json_path=output_json_path, output=all_outputs, args=args, run_id=run_id, mode="w+")
-            write_json_to_csv(output_csv_path=output_csv_path, output=all_outputs, args=args, run_id=run_id, mode='w+')
+            write_json_to_file(
+                output_json_path=paths['remaining_text'],
+                output=all_remaining_text,
+                args=args,
+                run_id=run_id,
+                mode="w+"
+            )
+
+    if all_error_logs:
+        logger.info("Writing error logs to file...")
+        try:
+            write_json_to_file(
+                output_json_path=paths['error_log'],
+                output=all_error_logs,
+                args=args,
+                run_id=run_id,
+                mode='a+'
+            )
+        except FileNotFoundError:
+            write_json_to_file(
+                output_json_path=paths['error_log'],
+                output=all_error_logs,
+                args=args,
+                run_id=run_id,
+                mode='w+'
+            )
 
 
-        if all_remaining_text:
-            print("Writing remaining text to file...")
-            try:
-                write_json_to_file(output_json_path=remaining_text_path, output=all_remaining_text, args=args, run_id=run_id, mode="a+")
-            except FileNotFoundError:
-                write_json_to_file(output_json_path=remaining_text_path, output=all_remaining_text, args=args, run_id=run_id, mode="w+")
+def run_example_mode(args: argparse.Namespace, run_id: str) -> None:
+    """Run in example mode using sample data."""
+    output_json_path = os.path.dirname(__file__) + "/examples/example_output.json"
+    example_json_path = os.path.dirname(__file__) + "/examples/example01.json"
+    with open(example_json_path, 'r') as example_json:
+        all_anki_cards = json.load(example_json)
+    write_json_to_file(output_json_path, all_anki_cards, args, run_id=run_id)
 
 
-        if all_error_logs:
-            print("Writing error logs to file...")
-            try:
-                write_json_to_file(output_json_path=error_log_path, output=all_error_logs, args=args, run_id=run_id, mode='a+')
-            except FileNotFoundError:
-                write_json_to_file(output_json_path=error_log_path, output=all_error_logs, args=args, run_id=run_id, mode='w+')
+def main():
+    """Main entry point for the Anki card generator CLI."""
+    args = parse_arguments()
+    run_id = generate_run_id(args)
 
+    if args.use_example:
+        run_example_mode(args, run_id)
+        return
 
+    # Extract text and create chunks
+    text_chunks, parsed_epub = extract_and_chunk_text(args)
+
+    # Build system prompt
+    system_prompt = build_system_prompt(args, parsed_epub)
+    args.prompt_text = system_prompt
+
+    # Set up output paths
+    paths = setup_output_paths(args)
+
+    # Handle test mode chunk limiting
+    if args.test:
+        text_chunks = text_chunks[:1] if len(text_chunks) > 1 else text_chunks
+        logger.info(f"No. of Text Chunks: {len(text_chunks)}")
+        logger.info("Writing inputs to file...")
+        try:
+            write_json_to_file(
+                output_json_path=paths['input_json'],
+                output=text_chunks,
+                args=args,
+                run_id=run_id,
+                mode='a+'
+            )
+        except FileNotFoundError:
+            write_json_to_file(
+                output_json_path=paths['input_json'],
+                output=text_chunks,
+                args=args,
+                run_id=run_id,
+                mode='w+'
+            )
     else:
-        output_json_path = os.path.dirname(__file__) + "/examples/example_output.json"
-        example_json_path = os.path.dirname(__file__) + "/examples/example01.json"
-        with open(example_json_path, 'r') as example_json:
-            all_anki_cards = json.load(example_json)
-        write_json_to_file(output_json_path, all_anki_cards, args, run_id=run_id)
+        text_chunks = text_chunks[args.chunk_range[0]:args.chunk_range[1]]
+
+    # Generate cards for all hyperparameter combinations
+    all_outputs = []
+    all_error_logs = []
+    all_remaining_text = []
+
+    for temperature, max_completion_tokens, top_p in product(
+        args.temperature, args.max_completion_tokens, args.top_p
+    ):
+        anki_cards, error_log, remaining_entries, variables = generate_cards_for_params(
+            text_chunks,
+            system_prompt,
+            temperature,
+            max_completion_tokens,
+            top_p
+        )
+
+        all_outputs.append({"anki_cards": anki_cards, "variables": variables})
+        if error_log:
+            all_error_logs.append({"error_log": error_log, "variables": variables})
+        all_remaining_text.extend(remaining_entries)
+
+    # Write all outputs
+    write_all_outputs(paths, all_outputs, all_error_logs, all_remaining_text, args, run_id)
+
 
 if __name__ == '__main__':
     main()
