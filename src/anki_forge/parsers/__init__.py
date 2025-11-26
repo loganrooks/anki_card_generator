@@ -2,8 +2,9 @@
 
 from .base import DocumentParser
 from .epub import EpubParser
+from .pdf import PdfParser
 
-__all__ = ["DocumentParser", "EpubParser"]
+__all__ = ["DocumentParser", "EpubParser", "PdfParser"]
 
 
 def get_parser(file_path: str) -> DocumentParser:
@@ -12,8 +13,9 @@ def get_parser(file_path: str) -> DocumentParser:
 
     parsers = {
         "epub": EpubParser,
+        "pdf": PdfParser,
         # Future: "mobi": MobiParser,
-        # Future: "pdf": PdfParser,
+        # Future: "txt": TextParser,
     }
 
     parser_class = parsers.get(ext)
