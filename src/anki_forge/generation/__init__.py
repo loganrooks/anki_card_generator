@@ -6,6 +6,8 @@ from .ollama import OllamaProvider
 from .gemini import GeminiProvider
 from .openrouter import OpenRouterProvider
 from .cache import ResponseCache, CachedProvider
+from .batch import BatchProcessor, BatchConfig, BatchStats, BatchResult
+from .card_generator import CardGenerator, GenerationResult
 
 from ..core.config import ProviderConfig
 
@@ -18,6 +20,12 @@ __all__ = [
     "OpenRouterProvider",
     "ResponseCache",
     "CachedProvider",
+    "BatchProcessor",
+    "BatchConfig",
+    "BatchStats",
+    "BatchResult",
+    "CardGenerator",
+    "GenerationResult",
     "get_provider",
 ]
 
