@@ -7,4 +7,6 @@ test/
 
 # Python bytecode
 __pycache__/
-*.pycsrc/anki_forge.egg-info/
+*.pyc
+*.egg-info/
+src/anki_forge.egg-info/
