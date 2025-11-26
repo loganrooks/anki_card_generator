@@ -30,6 +30,7 @@ dependencies = [
     "ebooklib>=0.18",
     "beautifulsoup4>=4.12",
     "requests>=2.28",
+    "rich>=13.0",  # Enhanced CLI output
 ]
 
 [project.optional-dependencies]
@@ -40,12 +41,19 @@ gemini = ["google-generativeai>=0.3"]
 pdf = ["pymupdf>=1.23"]
 # Semantic chunking
 semantic = ["sentence-transformers>=2.2"]
+# TUI components
+tui = [
+    "textual>=0.40",      # Full dashboard TUI
+    "questionary>=2.0",   # Interactive wizard prompts
+]
 # Install all providers and features
 all = [
     "openai>=1.0",
     "google-generativeai>=0.3",
     "pymupdf>=1.23",
     "sentence-transformers>=2.2",
+    "textual>=0.40",
+    "questionary>=2.0",
 ]
 dev = [
     "pytest>=7.0",
