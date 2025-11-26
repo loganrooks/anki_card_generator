@@ -35,17 +35,39 @@ class ClozeTargetType(Enum):
 
 @dataclass
 class ClozeTarget:
-    """A target identified for cloze deletion."""
+    """A target identified for cloze deletion.
+
+    Attributes:
+        text: The exact text to cloze delete
+        target_type: Category of the target (key term, foreign phrase, etc.)
+        importance: Score 1-10 indicating how critical this is for understanding
+                   10 = Core concept, must be included
+                   7-9 = Important term/phrase
+                   4-6 = Helpful but not essential
+                   1-3 = Minor, include only if density allows
+        reason: Brief explanation of why this should be cloze deleted
+        cloze_group: Which cloze group (c1, c2, c3) - for thematic grouping
+    """
     text: str
     target_type: ClozeTargetType
+    importance: int = 5  # 1-10 scale
+    reason: str = ""  # Why this target matters
     cloze_group: int = 1  # c1, c2, or c3
     start_pos: Optional[int] = None
     end_pos: Optional[int] = None
-    confidence: float = 1.0
+
+    def __post_init__(self):
+        # Clamp importance to valid range
+        self.importance = max(1, min(10, self.importance))
 
     def to_cloze(self) -> str:
         """Convert to Anki cloze format."""
         return f"{{{{c{self.cloze_group}::{self.text}}}}}"
+
+    @property
+    def char_count(self) -> int:
+        """Number of characters in the target."""
+        return len(self.text)
 
 
 @dataclass
