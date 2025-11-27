@@ -73,11 +73,16 @@ class SlidingWindowChunker(Chunker):
             ))
 
             # Move position, accounting for overlap
-            pos = end_pos - overlap
+            # Ensure we always advance by at least 1 character to prevent infinite loops
+            new_pos = end_pos - overlap
+            if new_pos <= pos:
+                new_pos = pos + max(1, window_size // 4)
+            pos = new_pos
             chunk_idx += 1
 
             # Safety check to prevent infinite loop
-            if pos <= 0 and chunk_idx > 1:
+            if chunk_idx > len(full_text):
+                logger.warning("Chunking iteration limit reached, stopping")
                 break
 
         logger.info(

@@ -53,7 +53,8 @@ class TestEpubParser:
 
     def test_parse_nonexistent_file(self, parser):
         """Test parsing non-existent file raises error."""
-        with pytest.raises(FileNotFoundError):
+        from anki_forge.core.exceptions import ParserError
+        with pytest.raises(ParserError):
             parser.parse("/nonexistent/file.epub")
 
     def test_is_document_parser(self, parser):
