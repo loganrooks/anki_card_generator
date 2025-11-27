@@ -92,6 +92,7 @@ class PdfParser(DocumentParser):
             )
             chunks.append(chunk)
 
+        total_pages = len(doc)
         doc.close()
 
         logger.info(f"Extracted {len(chunks)} pages from PDF")
@@ -101,7 +102,7 @@ class PdfParser(DocumentParser):
             author=author,
             file_path=str(path.absolute()),
             chunks=chunks,
-            total_pages=len(doc),
+            total_pages=total_pages,
         )
 
     def _build_section_map(self, toc: list) -> dict[int, str]:
