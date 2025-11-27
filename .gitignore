@@ -8,3 +8,5 @@ test/
 # Python bytecode
 __pycache__/
 *.pyc
+*.egg-info/
+src/anki_forge.egg-info/
