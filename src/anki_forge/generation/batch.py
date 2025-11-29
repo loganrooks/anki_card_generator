@@ -16,6 +16,7 @@ from dataclasses import dataclass, field
 from typing import Optional
 
 from ..core.models import Chunk, ClozeTarget, ClozeTargetType
+from ..core.parsing import parse_targets_from_list
 from .base import LLMProvider, LLMResponse
 
 logger = logging.getLogger(__name__)
@@ -302,50 +303,7 @@ class BatchProcessor:
 
     def _parse_targets(self, target_list: list) -> list[ClozeTarget]:
         """Parse a list of target dicts into ClozeTarget objects."""
-        targets = []
-
-        type_map = {
-            "KEY_TERM": ClozeTargetType.KEY_TERM,
-            "DEFINITION": ClozeTargetType.DEFINITION,
-            "FOREIGN": ClozeTargetType.FOREIGN_PHRASE,
-            "FOREIGN_PHRASE": ClozeTargetType.FOREIGN_PHRASE,
-            "PHRASE": ClozeTargetType.FULL_PHRASE,
-            "FULL_PHRASE": ClozeTargetType.FULL_PHRASE,
-            "CONCEPT": ClozeTargetType.CONCEPT,
-        }
-
-        for item in target_list:
-            if not isinstance(item, dict):
-                continue
-
-            text = item.get("text", "")
-            if not text:
-                continue
-
-            type_str = item.get("type", "KEY_TERM").upper()
-            target_type = type_map.get(type_str, ClozeTargetType.KEY_TERM)
-
-            # Parse importance (default 5, range 1-10)
-            importance = item.get("importance", 5)
-            if isinstance(importance, str):
-                try:
-                    importance = int(importance)
-                except ValueError:
-                    importance = 5
-            importance = max(1, min(10, importance))
-
-            reason = item.get("reason", "")
-            group = item.get("group", 1)
-
-            targets.append(ClozeTarget(
-                text=text,
-                target_type=target_type,
-                importance=importance,
-                reason=reason,
-                cloze_group=max(1, min(3, group)),
-            ))
-
-        return targets
+        return parse_targets_from_list(target_list, max_cloze_groups=3)
 
     def process_chunks(
         self,

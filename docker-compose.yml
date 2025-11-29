@@ -1,0 +1,58 @@
+# Docker Compose for Anki Forge
+# Provides easy container management with volume mounts and environment setup
+
+services:
+  anki-forge:
+    build: .
+    image: anki-forge:latest
+    container_name: anki-forge
+
+    # Mount your books and output directories
+    volumes:
+      - ./input:/data:ro      # Read-only input directory
+      - ./output:/output      # Output directory for generated cards
+      - ./cache:/app/.cache   # Cache for LLM responses
+
+    # Pass API keys from environment
+    environment:
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY:-}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+
+    # Override default command for interactive use
+    # command: ["generate", "/data/book.epub", "-o", "/output/cards.csv"]
+
+    # Keep container running for interactive use
+    stdin_open: true
+    tty: true
+
+  # Optional: Ollama service for local LLM
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    # Uncomment for GPU support
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+
+volumes:
+  ollama_data:
+
+# Usage:
+# 1. Create input/ and output/ directories
+# 2. Place your ebooks in input/
+# 3. Set your API key: export GOOGLE_API_KEY=your-key
+# 4. Run: docker-compose run anki-forge generate /data/book.epub -o /output/cards.csv
+#
+# For local Ollama:
+# 1. docker-compose up -d ollama
+# 2. docker-compose exec ollama ollama pull llama3.1:8b
+# 3. docker-compose run anki-forge generate /data/book.epub --provider ollama

@@ -39,6 +39,8 @@ openai = ["openai>=1.0"]
 gemini = ["google-generativeai>=0.3"]
 # PDF support
 pdf = ["pymupdf>=1.23"]
+# Kindle/MOBI support
+kindle = ["mobi>=0.3"]
 # Semantic chunking
 semantic = ["sentence-transformers>=2.2"]
 # TUI components
@@ -51,6 +53,7 @@ all = [
     "openai>=1.0",
     "google-generativeai>=0.3",
     "pymupdf>=1.23",
+    "mobi>=0.3",
     "sentence-transformers>=2.2",
     "textual>=0.40",
     "questionary>=2.0",
@@ -79,13 +82,35 @@ target-version = ["py310"]
 
 [tool.ruff]
 line-length = 100
-select = ["E", "F", "I", "N", "W"]
-ignore = ["E501"]
+target-version = "py310"
+
+[tool.ruff.lint]
+select = [
+    "E",      # pycodestyle errors
+    "F",      # pyflakes
+    "I",      # isort
+    "N",      # pep8-naming
+    "W",      # pycodestyle warnings
+    "UP",     # pyupgrade
+    "B",      # flake8-bugbear
+    "C4",     # flake8-comprehensions
+    "SIM",    # flake8-simplify
+]
+ignore = [
+    "E501",   # line too long (handled by formatter)
+    "B008",   # function call in default argument (common in Click)
+    "SIM108", # ternary operator (sometimes less readable)
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["anki_forge"]
 
 [tool.mypy]
 python_version = "3.10"
 warn_return_any = true
 warn_unused_ignores = true
+ignore_missing_imports = true
+check_untyped_defs = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
