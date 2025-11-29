@@ -359,22 +359,33 @@ Output ONLY the JSON array of targets."""
         try:
             # Find JSON array in response
             match = re.search(r'\[[\s\S]*\]', content)
-            if match:
-                data = json.loads(match.group())
-                for item in data:
-                    text = item.get("Text", item.get("text", ""))
-                    citation = item.get("Citation", item.get("citation", default_citation))
+            if not match:
+                logger.warning(f"No JSON array found in LLM response (length={len(content)})")
+                logger.debug(f"Response preview: {content[:200]}...")
+                return cards
 
-                    if text:
-                        # Validate cloze syntax
-                        is_valid, errors = validate_cloze_syntax(text)
-                        if is_valid:
-                            cards.append(Card(text=text, citation=citation))
-                        else:
-                            logger.debug(f"Invalid card skipped: {errors}")
+            data = json.loads(match.group())
+            if not isinstance(data, list):
+                logger.warning(f"Expected JSON array, got {type(data).__name__}")
+                return cards
+
+            for item in data:
+                if not isinstance(item, dict):
+                    continue
+                text = item.get("Text", item.get("text", ""))
+                citation = item.get("Citation", item.get("citation", default_citation))
+
+                if text:
+                    # Validate cloze syntax
+                    is_valid, errors = validate_cloze_syntax(text)
+                    if is_valid:
+                        cards.append(Card(text=text, citation=citation))
+                    else:
+                        logger.debug(f"Invalid card skipped: {errors}")
 
         except json.JSONDecodeError as e:
             logger.warning(f"Failed to parse JSON response: {e}")
+            logger.debug(f"Response preview: {content[:200]}...")
 
         return cards
 
@@ -384,49 +395,59 @@ Output ONLY the JSON array of targets."""
 
         try:
             match = re.search(r'\[[\s\S]*\]', content)
-            if match:
-                data = json.loads(match.group())
+            if not match:
+                logger.warning(f"No JSON array found in targets response (length={len(content)})")
+                logger.debug(f"Response preview: {content[:200]}...")
+                return targets
 
-                for item in data:
-                    text = item.get("text", "")
-                    type_str = item.get("type", "KEY_TERM").upper()
-                    group = item.get("group", 1)
+            data = json.loads(match.group())
+            if not isinstance(data, list):
+                logger.warning(f"Expected JSON array for targets, got {type(data).__name__}")
+                return targets
 
-                    # Map type string to enum
-                    type_map = {
-                        "KEY_TERM": ClozeTargetType.KEY_TERM,
-                        "DEFINITION": ClozeTargetType.DEFINITION,
-                        "FOREIGN": ClozeTargetType.FOREIGN_PHRASE,
-                        "FOREIGN_PHRASE": ClozeTargetType.FOREIGN_PHRASE,
-                        "PHRASE": ClozeTargetType.FULL_PHRASE,
-                        "FULL_PHRASE": ClozeTargetType.FULL_PHRASE,
-                        "CONCEPT": ClozeTargetType.CONCEPT,
-                    }
-                    target_type = type_map.get(type_str, ClozeTargetType.KEY_TERM)
+            for item in data:
+                if not isinstance(item, dict):
+                    continue
+                text = item.get("text", "")
+                type_str = item.get("type", "KEY_TERM").upper()
+                group = item.get("group", 1)
 
-                    # Parse importance (default 5, range 1-10)
-                    importance = item.get("importance", 5)
-                    if isinstance(importance, str):
-                        try:
-                            importance = int(importance)
-                        except ValueError:
-                            importance = 5
-                    importance = max(1, min(10, importance))
+                # Map type string to enum
+                type_map = {
+                    "KEY_TERM": ClozeTargetType.KEY_TERM,
+                    "DEFINITION": ClozeTargetType.DEFINITION,
+                    "FOREIGN": ClozeTargetType.FOREIGN_PHRASE,
+                    "FOREIGN_PHRASE": ClozeTargetType.FOREIGN_PHRASE,
+                    "PHRASE": ClozeTargetType.FULL_PHRASE,
+                    "FULL_PHRASE": ClozeTargetType.FULL_PHRASE,
+                    "CONCEPT": ClozeTargetType.CONCEPT,
+                }
+                target_type = type_map.get(type_str, ClozeTargetType.KEY_TERM)
 
-                    # Parse reason
-                    reason = item.get("reason", "")
+                # Parse importance (default 5, range 1-10)
+                importance = item.get("importance", 5)
+                if isinstance(importance, str):
+                    try:
+                        importance = int(importance)
+                    except ValueError:
+                        importance = 5
+                importance = max(1, min(10, importance))
 
-                    if text:
-                        targets.append(ClozeTarget(
-                            text=text,
-                            target_type=target_type,
-                            importance=importance,
-                            reason=reason,
-                            cloze_group=min(group, self.settings.max_cloze_groups),
-                        ))
+                # Parse reason
+                reason = item.get("reason", "")
+
+                if text:
+                    targets.append(ClozeTarget(
+                        text=text,
+                        target_type=target_type,
+                        importance=importance,
+                        reason=reason,
+                        cloze_group=min(group, self.settings.max_cloze_groups),
+                    ))
 
         except json.JSONDecodeError as e:
             logger.warning(f"Failed to parse targets response: {e}")
+            logger.debug(f"Response preview: {content[:200]}...")
 
         return targets
 

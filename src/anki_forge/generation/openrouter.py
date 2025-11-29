@@ -147,6 +147,13 @@ class OpenRouterProvider(LLMProvider):
 
         latency_ms = (time.time() - start_time) * 1000
 
+        # Bounds checking on response
+        if not response.choices:
+            raise ProviderError(
+                "OpenRouter returned empty choices array",
+                provider="openrouter",
+                retryable=True,
+            )
         choice = response.choices[0]
         content = choice.message.content or ""
 
