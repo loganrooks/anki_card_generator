@@ -99,7 +99,13 @@ class OpenAIProvider(LLMProvider):
 
         latency_ms = (time.time() - start_time) * 1000
 
-        # Extract response data
+        # Extract response data with bounds checking
+        if not response.choices:
+            raise ProviderError(
+                "OpenAI returned empty choices array",
+                provider="openai",
+                retryable=True,
+            )
         choice = response.choices[0]
         content = choice.message.content or ""
 

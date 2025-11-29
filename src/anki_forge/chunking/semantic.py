@@ -152,10 +152,13 @@ class SemanticChunker(Chunker):
                 current_length = sent_length
                 continue
 
-            # Check similarity to current group
-            similarity = np.dot(current_embedding, sent_embedding) / (
-                np.linalg.norm(current_embedding) * np.linalg.norm(sent_embedding)
-            )
+            # Check similarity to current group (with zero-vector protection)
+            norm_current = np.linalg.norm(current_embedding)
+            norm_sent = np.linalg.norm(sent_embedding)
+            if norm_current == 0 or norm_sent == 0:
+                similarity = 0.0  # Treat zero vectors as dissimilar
+            else:
+                similarity = np.dot(current_embedding, sent_embedding) / (norm_current * norm_sent)
 
             # Check if we should add to current group
             would_exceed_size = current_length + sent_length > max_chunk_size
