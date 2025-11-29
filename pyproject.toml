@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "anki-forge"
-version = "0.2.0"
+version = "0.3.0"
 description = "Generate Anki flashcards from EPUB and PDF documents using LLMs"
 readme = "README.md"
 license = {text = "MIT"}
