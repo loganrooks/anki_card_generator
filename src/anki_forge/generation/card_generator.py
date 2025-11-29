@@ -28,6 +28,7 @@ from typing import Optional
 from ..core.models import Card, Chunk, ClozeTarget, ClozeTargetType, GenerationSettings
 from ..core.config import ProviderConfig
 from ..core.exceptions import GenerationError
+from ..core.parsing import parse_targets_from_json
 from ..validation.cloze_engine import ClozeEngine
 from ..validation.cloze_validator import validate_cloze_syntax, extract_cloze_stats
 from .base import LLMProvider, LLMResponse
@@ -391,65 +392,7 @@ Output ONLY the JSON array of targets."""
 
     def _parse_targets_response(self, content: str) -> list[ClozeTarget]:
         """Parse cloze targets from LLM response with importance scoring."""
-        targets = []
-
-        try:
-            match = re.search(r'\[[\s\S]*\]', content)
-            if not match:
-                logger.warning(f"No JSON array found in targets response (length={len(content)})")
-                logger.debug(f"Response preview: {content[:200]}...")
-                return targets
-
-            data = json.loads(match.group())
-            if not isinstance(data, list):
-                logger.warning(f"Expected JSON array for targets, got {type(data).__name__}")
-                return targets
-
-            for item in data:
-                if not isinstance(item, dict):
-                    continue
-                text = item.get("text", "")
-                type_str = item.get("type", "KEY_TERM").upper()
-                group = item.get("group", 1)
-
-                # Map type string to enum
-                type_map = {
-                    "KEY_TERM": ClozeTargetType.KEY_TERM,
-                    "DEFINITION": ClozeTargetType.DEFINITION,
-                    "FOREIGN": ClozeTargetType.FOREIGN_PHRASE,
-                    "FOREIGN_PHRASE": ClozeTargetType.FOREIGN_PHRASE,
-                    "PHRASE": ClozeTargetType.FULL_PHRASE,
-                    "FULL_PHRASE": ClozeTargetType.FULL_PHRASE,
-                    "CONCEPT": ClozeTargetType.CONCEPT,
-                }
-                target_type = type_map.get(type_str, ClozeTargetType.KEY_TERM)
-
-                # Parse importance (default 5, range 1-10)
-                importance = item.get("importance", 5)
-                if isinstance(importance, str):
-                    try:
-                        importance = int(importance)
-                    except ValueError:
-                        importance = 5
-                importance = max(1, min(10, importance))
-
-                # Parse reason
-                reason = item.get("reason", "")
-
-                if text:
-                    targets.append(ClozeTarget(
-                        text=text,
-                        target_type=target_type,
-                        importance=importance,
-                        reason=reason,
-                        cloze_group=min(group, self.settings.max_cloze_groups),
-                    ))
-
-        except json.JSONDecodeError as e:
-            logger.warning(f"Failed to parse targets response: {e}")
-            logger.debug(f"Response preview: {content[:200]}...")
-
-        return targets
+        return parse_targets_from_json(content, self.settings.max_cloze_groups)
 
     def _split_into_cards(self, text: str, citation: str) -> list[Card]:
         """Split text into multiple cards if too long."""
