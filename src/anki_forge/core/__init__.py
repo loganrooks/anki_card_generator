@@ -10,6 +10,11 @@ from .exceptions import (
     ValidationError,
     ProviderError,
 )
+from .parsing import (
+    parse_target_from_dict,
+    parse_targets_from_list,
+    parse_targets_from_json,
+)
 
 __all__ = [
     "Card",
@@ -25,4 +30,7 @@ __all__ = [
     "GenerationError",
     "ValidationError",
     "ProviderError",
+    "parse_target_from_dict",
+    "parse_targets_from_list",
+    "parse_targets_from_json",
 ]
