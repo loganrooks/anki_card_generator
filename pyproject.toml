@@ -39,6 +39,8 @@ openai = ["openai>=1.0"]
 gemini = ["google-generativeai>=0.3"]
 # PDF support
 pdf = ["pymupdf>=1.23"]
+# Kindle/MOBI support
+kindle = ["mobi>=0.3"]
 # Semantic chunking
 semantic = ["sentence-transformers>=2.2"]
 # TUI components
@@ -51,6 +53,7 @@ all = [
     "openai>=1.0",
     "google-generativeai>=0.3",
     "pymupdf>=1.23",
+    "mobi>=0.3",
     "sentence-transformers>=2.2",
     "textual>=0.40",
     "questionary>=2.0",
