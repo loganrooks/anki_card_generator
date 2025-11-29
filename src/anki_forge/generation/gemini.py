@@ -118,13 +118,28 @@ class GeminiProvider(LLMProvider):
 
         latency_ms = (time.time() - start_time) * 1000
 
-        # Extract response
+        # Extract response with bounds checking
+        if not response.candidates:
+            raise ProviderError(
+                "Gemini returned empty candidates array",
+                provider="gemini",
+                retryable=True,
+            )
+
         content = response.text if response.text else ""
 
         # Gemini provides token counts
-        input_tokens = response.usage_metadata.prompt_token_count if hasattr(response, 'usage_metadata') else 0
-        output_tokens = response.usage_metadata.candidates_token_count if hasattr(response, 'usage_metadata') else 0
+        input_tokens = 0
+        output_tokens = 0
+        if hasattr(response, 'usage_metadata') and response.usage_metadata:
+            input_tokens = getattr(response.usage_metadata, 'prompt_token_count', 0) or 0
+            output_tokens = getattr(response.usage_metadata, 'candidates_token_count', 0) or 0
         estimated_cost = self._calculate_cost(input_tokens, output_tokens)
+
+        # Safely get finish reason
+        finish_reason = None
+        if response.candidates and response.candidates[0].finish_reason:
+            finish_reason = response.candidates[0].finish_reason.name
 
         return LLMResponse(
             content=content.strip(),
@@ -134,5 +149,5 @@ class GeminiProvider(LLMProvider):
             output_tokens=output_tokens,
             estimated_cost=estimated_cost,
             latency_ms=latency_ms,
-            finish_reason=response.candidates[0].finish_reason.name if response.candidates else None,
+            finish_reason=finish_reason,
         )
